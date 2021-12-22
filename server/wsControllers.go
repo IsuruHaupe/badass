@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"sync"
 
 	"github.com/gobwas/ws"
 	"github.com/segmentio/ksuid"
@@ -26,14 +25,7 @@ request to send the match ID to the server.
 
 */
 
-type matchFollowed struct {
-	mu    sync.Mutex
-	match Match
-}
-
-var matchToFollow matchFollowed
-
-func WatcherWsHandler(w http.ResponseWriter, r *http.Request) {
+func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		// Upgrade connection
@@ -96,7 +88,8 @@ request to send the referee ID to the server.
 It is then saved as a new entry in the map 'referees'
 
 */
-func RefereeWsHandler(w http.ResponseWriter, r *http.Request) {
+
+func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		// Upgrade connection
@@ -125,25 +118,12 @@ func RefereeWsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		// init empty map of watcher for this referee ID
-		referees[referee.ID] = make(map[string]net.Conn)
+		// check if referee already exists (i.e trying to reconnect)
+		if _, ok := referees[referee.ID]; !ok {
+			// init empty map of watcher for this referee ID
+			referees[referee.ID] = make(map[string]net.Conn)
+		}
 		fmt.Printf("Referee ID : %+v", referee)
 		fmt.Printf("List d'arbitre : \n %v \n", referees)
 	}
-}
-
-func GetLiveMatch(w http.ResponseWriter, r *http.Request) {
-	keys := make([]string, len(referees))
-
-	i := 0
-	for k := range referees {
-		keys[i] = k
-		i++
-	}
-
-	body, err := json.Marshal(keys)
-	if err != nil {
-		fmt.Println("error when marshelling in referee.go L.40 : %v", err)
-	}
-	w.Write(body)
 }

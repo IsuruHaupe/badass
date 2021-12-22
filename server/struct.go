@@ -25,6 +25,11 @@ type Match struct {
 	ID string
 }
 
+type MatchFollowed struct {
+	mu    sync.Mutex
+	match Match
+}
+
 // This variable is used to handle referees
 var refereeEpoller *Epoll
 
@@ -34,3 +39,5 @@ var referees map[string]map[string]net.Conn
 //var referees map[string]*Epoll
 
 var db *sql.DB
+
+var matchToFollow MatchFollowed

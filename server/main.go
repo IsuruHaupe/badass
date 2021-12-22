@@ -31,11 +31,11 @@ func main() {
 	// this go routine waits for updates from the pool of referees
 	// and handle them by saving the update in the DB and sends
 	// notification to watchers
-	go RefereeHandler()
+	go EventController()
 
-	http.HandleFunc("/referee", RefereeWsHandler)
-	http.HandleFunc("/referee/register", RefereeWsHandler)
-	http.HandleFunc("/spectateur", WatcherWsHandler)
+	http.HandleFunc("/referee", RefereeWsController)
+	http.HandleFunc("/referee/register", RefereeWsController)
+	http.HandleFunc("/spectateur", WatcherWsController)
 	http.HandleFunc("/live-match", GetLiveMatch)
 
 	if err := http.ListenAndServe("0.0.0.0:8000", nil); err != nil {

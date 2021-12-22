@@ -32,7 +32,7 @@ func main() {
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/live-match"}
 	getLiveMatch(u.String())
 	fmt.Println(matchs)
-	initWatcher(matchs[1])
+	initWatcher(matchs[0])
 }
 
 func getLiveMatch(url string) {

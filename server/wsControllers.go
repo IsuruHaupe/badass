@@ -26,6 +26,8 @@ request to send the match ID to the server.
 */
 
 func WatcherWsController(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	switch r.Method {
 	case "GET":
 		// Upgrade connection
@@ -68,6 +70,7 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		fmt.Println("NEW POST : \n", matchToFollow.match.ID)
 		// we lock the global variable until we saved
 		// the id of the referee
 		matchToFollow.mu.Lock()
@@ -90,6 +93,7 @@ It is then saved as a new entry in the map 'referees'
 */
 
 func RefereeWsController(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	switch r.Method {
 	case "GET":
 		// Upgrade connection

@@ -30,6 +30,7 @@ type Match struct {
 func main() {
 	//go initReferee()
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/live-match"}
+	fmt.Println(u)
 	getLiveMatch(u.String())
 	fmt.Println(matchs)
 	initWatcher(matchs[0])

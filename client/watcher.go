@@ -75,7 +75,7 @@ func initWatcher(matchID string) {
 		fmt.Println("error when marshelling in client.go L.68 : %v", err)
 	}
 	// send referee ID
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/spectateur"}
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/spectateur/register"}
 	resp, err := http.Post(u.String(), "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		panic(err)
@@ -97,8 +97,7 @@ func initWatcher(matchID string) {
 			c.WriteControl(websocket.CloseMessage,
 				websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
 				time.Now().Add(time.Second))
-			time.Sleep(time.Second)
-			c.Close()
+			time.Sleep(time.Second)		c.Close()
 		}()
 	}
 

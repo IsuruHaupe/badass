@@ -51,7 +51,7 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 		// generate unique ID for this watcher
 		watcherID := ksuid.New().String()
 		// add the watcher in the map of the referee
-		fmt.Println(matchToFollow.match.ID)
+		fmt.Println("NEW GET : \n", matchToFollow.match.ID)
 		referees[matchToFollow.match.ID][watcherID] = conn
 		if err != nil {
 			log.Printf("Failed to add connection to referee : %v", err)

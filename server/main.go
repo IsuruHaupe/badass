@@ -35,6 +35,7 @@ func main() {
 
 	http.HandleFunc("/referee", RefereeWsController)
 	http.HandleFunc("/referee/register", RefereeWsController)
+	http.HandleFunc("/spectateur/register", WatcherWsController)
 	http.HandleFunc("/spectateur", WatcherWsController)
 	http.HandleFunc("/live-match", GetLiveMatch)
 

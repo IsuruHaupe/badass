@@ -77,7 +77,22 @@ go run client.go
 * ```go run referee.go``` will create an unique ID for the referee program and send it via a POST request to the server, the server will register this ID as a referee and will wait for websocket connection. Then the referee program create a websocket connection and start sending fake updates.
 * ```go run client.go``` will retrieve live match that can be follow via a GET request to the route */live-match*. Then will take the first entry in the array of ID of match and send a POST request with it to notify the server that the watcher wants to get updates on that particular match. 
 
+# Docker 
 
+To run the server in a docker environment use the following command inside the global directory : 
+
+```bash
+# run docker compose and free command line
+docker-compose up -d 
+
+# query the message from the server instance
+docker logs -f server
+
+# you can now run referee.go and watcher.go
+# inside client 
+go run referee.go 
+go run watcher.go
+```
 
 # References 
 

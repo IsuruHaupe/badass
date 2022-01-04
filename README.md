@@ -91,3 +91,12 @@ go run client.go
 # TODO 
 
 * cache the id of the referee in order to reconnect to the existing pool of watchers
+* create the database for match (id_Match, event, id_Tournoi, id_equipe1, id_equipe2)
+* create the database for tournament (id_Tournoi, nom)
+* handle creation of match
+    * create team name
+    * create sport type
+    * register the team in the match database
+    * create a "get-summary" route to return summary of a match (takes a matchid) -> returns score, faults, timeout from history DB
+    * create a struct to retrieve match event for the get-summary route {id_match, equipe, event_type, value}
+*  handle creation of tournament and joining a tournament by sending the tournament ID when creating a match

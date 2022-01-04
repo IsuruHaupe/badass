@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
+	"time"
 
-	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func AddEvent(db *sql.DB, ev Event) (int64, error) {
@@ -47,24 +47,28 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 
 func ConnectToDB() (db *sql.DB) {
 	// Capture connection properties.
-	cfg := mysql.Config{
+	/*cfg := mysql.Config{
 		User:   os.Getenv("DBUSER"),
 		Passwd: os.Getenv("DBPASS"),
 		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
+		Addr:   "127.0.0.1:33060",
 		DBName: "history_of_message",
-	}
+	}*/
 	// Get a database handle.
 	var err error
-	db, err = sql.Open("mysql", cfg.FormatDSN())
+	//db, err = sql.Open("mysql", cfg.FormatDSN())
+	db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
+	// MySQL server isn't fully active yet.
+	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start
+	// up in time.
+	for db.Ping() != nil {
+		fmt.Println("Attempting connection to db")
+		time.Sleep(5 * time.Second)
 	}
-	fmt.Println("Connected!")
+	fmt.Println("Connected")
 	return
 }

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// export credentials in order to connect to the DB
-	SetBDDEnvironmentVariable()
+	//SetBDDEnvironmentVariable()
 	// connect to the DB using the exported credentials
 	db = ConnectToDB()
 

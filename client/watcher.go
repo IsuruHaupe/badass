@@ -97,7 +97,8 @@ func initWatcher(matchID string) {
 			c.WriteControl(websocket.CloseMessage,
 				websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
 				time.Now().Add(time.Second))
-			time.Sleep(time.Second)		c.Close()
+			time.Sleep(time.Second)
+			c.Close()
 		}()
 	}
 

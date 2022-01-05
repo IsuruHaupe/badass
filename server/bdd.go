@@ -21,6 +21,30 @@ func AddEvent(db *sql.DB, ev Event) (int64, error) {
 	return id, nil
 }
 
+func AddTournament(db *sql.DB, tr Tournament) (int64, error) {
+	result, err := db.Exec("INSERT INTO tournament (tournament) VALUES (?)", tr.name)
+	if err != nil {
+		return 0, fmt.Errorf("AddTournament: %v", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("AddTournament: %v", err)
+	}
+	return id, nil
+}
+
+func AddArbitre(db *sql.DB, tr Tournament) (int64, error) {
+	result, err := db.Exec("INSERT INTO tournament (tournament) VALUES (?)", tr.name)
+	if err != nil {
+		return 0, fmt.Errorf("AddTournament: %v", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("AddTournament: %v", err)
+	}
+	return id, nil
+}
+
 func GetAllEvent(db *sql.DB) ([]Event, error) {
 	// An albums slice to hold data from returned rows.
 	var events []Event
@@ -51,7 +75,7 @@ func ConnectToDB() (db *sql.DB) {
 		User:   os.Getenv("DBUSER"),
 		Passwd: os.Getenv("DBPASS"),
 		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
+		Addr:   "127.0.0.1:33060",
 		DBName: "history_of_message",
 	}
 	// Get a database handle.

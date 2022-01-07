@@ -17,12 +17,29 @@ type Event struct {
 	Event   string
 }
 
+type Tournament struct {
+	ID 		string
+	name   	string
+	sport  	string
+}
+
+type Referee struct {
+	ID 		string
+	name   	string
+	surname string
+}
+
 type RefereeID struct {
 	ID string
 }
 
 type Match struct {
-	ID string
+	ID 			string
+	equipe1 	string
+	equipe2 	string
+	refere		Referee
+	tournament 	Tournament
+
 }
 
 type MatchFollowed struct {

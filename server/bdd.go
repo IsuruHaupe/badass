@@ -47,16 +47,18 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 
 func ConnectToDB() (db *sql.DB) {
 	// Capture connection properties.
+	// for non docker env
 	/*cfg := mysql.Config{
 		User:   os.Getenv("DBUSER"),
 		Passwd: os.Getenv("DBPASS"),
 		Net:    "tcp",
-		Addr:   "127.0.0.1:33060",
+		Addr:   "127.0.0.1:3306",
 		DBName: "history_of_message",
 	}*/
+	//db, err = sql.Open("mysql", cfg.FormatDSN())
 	// Get a database handle.
 	var err error
-	//db, err = sql.Open("mysql", cfg.FormatDSN())
+	// for docker env
 	db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	if err != nil {
 		log.Fatal(err)

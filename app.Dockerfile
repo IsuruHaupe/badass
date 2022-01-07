@@ -8,6 +8,4 @@ COPY server/ .
 
 RUN go build -o main
 
-# wait-for-it requires bash, which alpine doesn't ship with by default. Use wait-for instead
-
 ENTRYPOINT ["./main"]

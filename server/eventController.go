@@ -111,62 +111,7 @@ func EventController() {
 						}*/
 					}
 				}
-				// envoyer la MAJ au spectateur
-				// il faut discriminer les spectateurs en fonction des matchs qu'ils regardent
-
-				// send message example
-				//log.Printf("Server sending message")
-				//err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte(event[rand.Intn(len(event))]))
-				//if err != nil {
-				//	if err := epoller.Remove(conn); err != nil {
-				//		log.Printf("Failed to remove %v", err)
-				//	}
-				//	conn.Close()
-				//}
 			}
 		}
 	}
 }
-
-/*func Start() {
-	event := [5]string{"match created",
-		"updates on score 1",
-		"updates on timeout",
-		"updates on score 2",
-		"math ended"}
-	for {
-		connections, err := epoller.Wait()
-		if err != nil {
-			log.Printf("Failed to epoll wait %v", err)
-			continue
-		}
-		for _, conn := range connections {
-			if conn == nil {
-				break
-			}
-			tts := time.Second
-			time.Sleep(tts)
-			// receive message
-			#msg, _, err := wsutil.ReadClientData(conn)
-			#if err != nil {
-			#	if err := epoller.Remove(conn); err != nil {
-			#		log.Printf("Failed to remove %v", err)
-			#	}
-			#	conn.Close()
-			#} else {
-			#	// This is commented out since in demo usage, stdout is showing messages sent from > 1M connections at very high rate
-			#	log.Printf("msg: %s", string(msg))
-			#}
-
-			// send message
-			log.Printf("Server sending message")
-			err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte(event[rand.Intn(len(event))]))
-			if err != nil {
-				if err := epoller.Remove(conn); err != nil {
-					log.Printf("Failed to remove %v", err)
-				}
-				conn.Close()
-			}
-		}
-	}
-}*/

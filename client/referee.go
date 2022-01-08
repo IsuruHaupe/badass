@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"math/rand"
-	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -35,10 +33,6 @@ func main() {
 	referee := RefereeID{
 		ID: ksuid.New().String(),
 	}
-	body, err := json.Marshal(referee)
-	if err != nil {
-		fmt.Println("error when marshelling in referee.go L.40 : %v", err)
-	}
 	flag.Usage = func() {
 		io.WriteString(os.Stderr, `Websockets client generator
 Example usage: ./client -ip=172.17.0.1 -conn=10
@@ -48,20 +42,13 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	flag.Parse()
 
 	rand.Seed(time.Now().Unix())
-	//route := [2]string{"/arbitre", "/spectateur"}
-
-	// envoyer l'id du referee
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/referee/register"}
-	// send referee ID
-	resp, err := http.Post(u.String(), "application/json", bytes.NewBuffer(body))
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
 	// creer la connexion websocket
-	//u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: route[rand.Intn(len(route))]}
-	u = url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
+	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
+	// add referee ID to URL
+	params := url.Values{}
+	params.Add("refereeID", referee.ID)
+	u.RawQuery = params.Encode()
+
 	log.Printf("Connecting to %s", u.String())
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
@@ -84,7 +71,6 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		tts = time.Millisecond * 5
 	}
 
-	//message := os.Args[1]
 	event := []Event{
 		Event{Referee: referee, Event: "match created"},
 		Event{Referee: referee, Event: "updates on score 1"},
@@ -96,7 +82,6 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		Event{Referee: referee, Event: "event apres"},
 	}
 
-	// envoyer une structure qui contient l'id du referee et son message
 	for {
 		for i := 0; i < len(conns); i++ {
 			time.Sleep(tts)
@@ -117,9 +102,4 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 			}
 		}
 	}
-	/*for i := 0; i < len(conns); i++ {
-		time.Sleep(tts)
-		conn := conns[i]
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%v", message)))
-	}*/
 }

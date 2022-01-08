@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -28,7 +27,6 @@ type Match struct {
 }
 
 func main() {
-	//go initReferee()
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/live-match"}
 	fmt.Println(u)
 	getLiveMatch(u.String())
@@ -51,7 +49,7 @@ func getLiveMatch(url string) {
 	}
 	err = json.Unmarshal(body, &matchs)
 	if err != nil {
-		fmt.Println("error when marshelling in client.go L.4 8 : %v", err)
+		fmt.Println("error when marshelling in client.go : %v", err)
 	}
 }
 
@@ -64,27 +62,14 @@ func initWatcher(matchID string) {
 	flag.Parse()
 
 	rand.Seed(time.Now().Unix())
-	//route := [2]string{"/arbitre", "/spectateur"}
-	//POST
-	match := Match{
-		ID: matchID,
-	}
-
-	body, err := json.Marshal(match)
-	if err != nil {
-		fmt.Println("error when marshelling in client.go L.68 : %v", err)
-	}
-	// send referee ID
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/spectateur/register"}
-	resp, err := http.Post(u.String(), "application/json", bytes.NewBuffer(body))
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
 	//WEBSOCKET
-	u = url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/spectateur"}
+	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/spectateur"}
+	// add match ID to URL
+	params := url.Values{}
+	params.Add("matchID", matchID)
+	u.RawQuery = params.Encode()
 	log.Printf("Connecting to %s", u.String())
+
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
 		c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -111,12 +96,6 @@ func initWatcher(matchID string) {
 		for i := 0; i < len(conns); i++ {
 			time.Sleep(tts)
 			conn := conns[i]
-			//log.Printf("Spectateur %d sending message", i+1)
-			//if err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5)); err != nil {
-			//	fmt.Printf("Failed to receive pong: %v", err)
-			//}
-			// receiving message
-			// decoder les messages avec un unmarshal
 			_, reader, err := conn.NextReader()
 			if err == nil {
 				bts, err := ioutil.ReadAll(reader)
@@ -128,64 +107,3 @@ func initWatcher(matchID string) {
 		}
 	}
 }
-
-/*func initReferee() {
-	flag.Usage = func() {
-		io.WriteString(os.Stderr, `Websockets client generator
-Example usage: ./client -ip=172.17.0.1 -conn=10
-`)
-		flag.PrintDefaults()
-	}
-	flag.Parse()
-
-	rand.Seed(time.Now().Unix())
-	//route := [2]string{"/arbitre", "/spectateur"}
-
-	//u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: route[rand.Intn(len(route))]}
-	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/arbitre"}
-	log.Printf("Connecting to %s", u.String())
-	var conns []*websocket.Conn
-	for i := 0; i < *connections; i++ {
-		c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-		if err != nil {
-			fmt.Println("Failed to connect", i, err)
-			break
-		}
-		conns = append(conns, c)
-		defer func() {
-			c.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""), time.Now().Add(time.Second))
-			time.Sleep(time.Second)
-			c.Close()
-		}()
-	}
-
-	log.Printf("Finished initializing %d connections", len(conns))
-	tts := time.Second
-	if *connections > 100 {
-		tts = time.Millisecond * 5
-	}
-	event := []Event{
-		{event: "match created"},
-		{event: "updates on score 1"},
-		{event: "updates on timeout"},
-		{event: "updates on score 2"},
-		{event: "math ended"},
-		{event: "event apres"},
-		{event: "event apres"},
-		{event: "event apres"},
-	}
-	for {
-		for i := 0; i < len(conns); i++ {
-			time.Sleep(tts)
-			conn := conns[i]
-			//log.Printf("Spectateur %d sending message", i+1)
-			//if err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5)); err != nil {
-			//	fmt.Printf("Failed to receive pong: %v", err)
-			//}
-			// sending message
-			for i := 0; i < 8; i++ {
-				conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%v", event[i])))
-			}
-		}
-	}
-}*/

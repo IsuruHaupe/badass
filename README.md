@@ -8,53 +8,46 @@ for student tournaments, for example, or for sports clubs.
 
 The purpose of this project is to design and develop a software to facilitate the management of a multi-sport tournament; in particular by communicating in real time to the organisers the results of the various matches entered on mobile devices (telephone, tablet, etc.).
 
+# General purpose of this architecture 
+
+The general purpose of this repo/projet is to transfer any kind of messages from a publisher to a subscriber.
+
 # Requirements 
 
 * Golang 
-* An Unix OS - (we optimized the handling of pool of connection for the referee using epoll, see references 1 & 2 for more info)
+* An Unix OS - (we optimized the handling of pool of connection for the referee using epoll, see references 1 & 2 for more info). If you don't have epoll you can use docker (see [docker section](#docker)).
 
 # Architecture 
 
-The project is build to mimic the process of a pub/sub protocol over websockets. The server serves as a broker and relay published messages by the referee (aka publisher) to watchers (aka subscriber) of a match.
+The project is build to mimic the process of a pub/sub protocol but over websockets. The server represents a broker and relay published messages by the referee (aka publisher) to watchers (aka subscriber) of a match.
 
-When the server is launched it will wait for incoming connection requests, it will treat two kind of connection and two subtype. See [routes](#routes)
+When the server is launched it will wait for incoming websocket connection requests. See [routes](#routes)
 
-* Referee request : 
+* Referee request : the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. **The referee front-end generates and sends an unique ID as a string in the URL query**. See [watcher.go](client/watcher.go) or [referee.go](client/referee.go) for examples. *Possible example : ws://127.0.0.1:8000/referee?**refereeID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
 
-    * POST request : **the referee frontend generates and sends an unique ID as a string** to identify him/her and the match he/she is judging (the referee ID and the match ID are the same).
-    
-    * GET request : the referee initiate a websocket by sending a GET request. The referee then use this connection to sends live updates of the match.
+* Watcher request : the watcher initiate a websocket connection to receive updates. Whenever the referee of the match sends an update about the match the watcher is following, the server will forward those updates to him. **The watcher sends the ID of the match (referee ID) he/she wants to get live updates from in the URL query**. *Possible example : ws://127.0.0.1:8000/spectateur?**matchID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
 
-* Watcher request : 
+* Live match request : Match ID can be retrieved using a GET request.
 
-    * POST request : the watcher sends the ID of the match (referee ID) he/she wants to get live updates from. Match ID can be retrieved using a GET request to */live-match*.
-
-    * GET resquest : the watcher initiate a websocket connection to receive updates. Whenever the referee of the match sends an update about the match the watcher is following, the server will forward those updates to him.
-
-Since the handshake of the websocket is created through a GET request, we cannot pass the ID of the match the watcher wants to follow at the same time. We need to get a list of the live match we can follow and their respective ID (see [routes](#routes)). Then, we make a POST request to suscribe to the live updates of the match using the dedicated route and ID of the match. After we are subscribe to the match, we need to instantiate the websocket connection to retrieve live updates by using the handshake (aka GET request) with the correct route.
-
-We store the referees connections in a map that is controlled by an epoll instance (not available in windows) that will save ressources while waiting for referee to post messages (see reference 1 & 2 for more info about the optimization).
+We store the referees connections in a map that is controlled by an epoll instance (not available in windows, use docker provided in the repo, see [docker](#docker)) that will save ressources while waiting for referee to post messages (see reference 1 & 2 for more info about the optimization).
 
 We have another map of map to link the referee to a pool of watchers (the keys are the referee ID and the values are a map of watchers connections). Whenever a referee sends an update, the epoll instance catch it and retrieves the pool of watcher for that referee using this map of map. We then iterate over the pool of connection and send the update to every watcher. Just like a pub/sub broker.
 
-**Since the websocket handshake is a GET request and we can't do anything about it, we use a POST request before the websocket connection to notify the server of the match ID we want to receive updates on. Then, once the websocket connection is made, we use the match ID previously sent via the GET request to pair the match ID to the watcher ID inside the map of map (the key is the match ID and the value is a map of watcher, the key of the second map is the unique ID of the watcher and the value is the connection to that watcher)**. To do that, we use a mutex to lock the match ID the current watcher wants. Every watcher sending a POST request will have to wait (synchronously) until the previous watcher has instanciated a websocket connection, where the mutex is unlock to make place for a new watcher to send a match he/she wants to follow. **To that end, every client needs to synchronously first sends a POST request with the match ID followed by a websocket connection.**
-
+**When you create a new match, the front-end needs to generate an unique ID (UUID) and send it to the server in the URL query as a param (after the '?' in the query) when creating the websocket connection. Same is applied when you want to follow a match live score. Example can be found in [watcher.go](client/watcher.go) and [referee.go](client/referee.go)**
 
 # Lost of connection 
 
-* **Watcher side** : if the connection is lost from the watcher side, a new unique ID for the watcher is generated and all the previous events are sent to the watcher by the server. When the referee will send new updates, the server will remove the previous connection from the map of connection.
+* **Watcher side** : if the connection is lost from the watcher side, a new unique ID for the watcher is generated and all the previous events are sent to the watcher by the server when reconnecting. When the referee will send new updates, the server will remove the previous connection from the map of connection. The match ID must be supplied in the websocket connection as a query param.
 
-* **Referee side** : if the connection is lost from the referee side, we do not remove the referee ID from the map since every watchers of a match are linked to a match by the referee ID (since he/she is in charge of sending updates, he/she acts like a topic). **It is the duty of the front developer to generate an unique ID and cache it in the frontend in order to resend it via a POST request to register the referee again (aka a reconnection) when he/she tries to reconnect to the server.** The pool of watcher is kept intact and the referee can sends update again.
+* **Referee side** : if the connection is lost from the referee side, we do not remove the referee ID from the map since every watchers of a match are linked to a match by the referee ID (since he/she is in charge of sending updates, he/she acts like a topic). **It is the duty of the front developer to generate an unique ID and cache it in the frontend in order to resend it via a websocket connection to register the referee again (aka a reconnection) when he/she tries to reconnect to the server.** The pool of watcher is kept intact and the referee can sends update again.
 
 
 
 # Routes 
 
-* */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. 
-* */referee/register* : This route receives a POST request with the ID of the referee in the form of a JSON format ({ID : id_of_referee_as_a_string}).
-* */spectateur/register* : This route receives a POST request with the ID of the match the watcher wants to follow in a JSON format ({ID : id_of_match_as_a_string}).
-* */spectateur* : This route is used to instantiate the websocket connection
-* */live-match* : This route returns the live match that can be followed. Use the results of this GET request to send a POST request with the ID of the match you want to follow.
+* */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. pass the refereeID a a string (key = refereeID, key = UUID)
+* */spectateur* : This route is used to instantiate the websocket connection for a watcher to receive live event of a specified match. The match ID must be passed in the URL request (key = matchID, key = UUID of the match)
+* */live-match* : This route returns the live match that can be followed. Use the result of this GET request to initiate a websocket connection with the server.
 
 # Database 
 

@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	// export credentials in order to connect to the DB
-	//SetBDDEnvironmentVariable()
+	// export credentials in order to connect to the DB (non docker)
+	SetBDDEnvironmentVariable()
 	// connect to the DB using the exported credentials
 	db = ConnectToDB()
 
@@ -34,8 +34,6 @@ func main() {
 	go EventController()
 
 	http.HandleFunc("/referee", RefereeWsController)
-	http.HandleFunc("/referee/register", RefereeWsController)
-	http.HandleFunc("/spectateur/register", WatcherWsController)
 	http.HandleFunc("/spectateur", WatcherWsController)
 	http.HandleFunc("/live-match", GetLiveMatch)
 

@@ -4,13 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func AddEvent(db *sql.DB, ev Event) (int64, error) {
-	result, err := db.Exec("INSERT INTO historique (evenement) VALUES (?)", ev.Event)
+	result, err := db.Exec("INSERT INTO history (evenement) VALUES (?)", ev.Event)
 	if err != nil {
 		return 0, fmt.Errorf("addEvent: %v", err)
 	}
@@ -49,7 +51,7 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	// An albums slice to hold data from returned rows.
 	var events []Event
 
-	rows, err := db.Query("SELECT * FROM historique")
+	rows, err := db.Query("SELECT * FROM history")
 	if err != nil {
 		return nil, fmt.Errorf("error : %v", err)
 	}
@@ -69,21 +71,23 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	return events, nil
 }
 
+// https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
+// for problems with mysql
 func ConnectToDB() (db *sql.DB) {
 	// Capture connection properties.
 	// for non docker env
-	/*cfg := mysql.Config{
+	cfg := mysql.Config{
 		User:   os.Getenv("DBUSER"),
 		Passwd: os.Getenv("DBPASS"),
 		Net:    "tcp",
 		Addr:   "127.0.0.1:3306",
 		DBName: "history_of_message",
-	}*/
-	//db, err = sql.Open("mysql", cfg.FormatDSN())
+	}
 	// Get a database handle.
 	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
 	// for docker env
-	db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
+	//db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,6 +99,6 @@ func ConnectToDB() (db *sql.DB) {
 		fmt.Println("Attempting connection to db")
 		time.Sleep(5 * time.Second)
 	}
-	fmt.Println("Connected")
+	fmt.Println("Connected !")
 	return
 }

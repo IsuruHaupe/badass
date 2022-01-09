@@ -1,110 +1,156 @@
-# Background 
+# Deployment using Heroku
 
-Sport does not yet have the productivity tools of companies and projects!
-The organisation of the multi-sport and multi-site tournament does not benefit from a simple and adapted application
-for student tournaments, for example, or for sports clubs.
+We use Heroku to deploy our server. To this end we need to take care of the connection with the database. Since we use the add-on provided by Heroku (ClearDB). This means that will only need to update the file *bdd.go* specifying what is the mysql database credentials.
 
-# Purpose of this project 
+# Deployment from scratch 
 
-The purpose of this project is to design and develop a software to facilitate the management of a multi-sport tournament; in particular by communicating in real time to the organisers the results of the various matches entered on mobile devices (telephone, tablet, etc.).
+If you want to deploy the server on your own Heroku account, use the following process.
 
-# General purpose of this architecture 
+## Prerequesites
 
-The general purpose of this repo/projet is to transfer any kind of messages from a publisher to a subscriber.
+- An Heroku account with billing information provided
+- The Heroku CLI installed
+- Git installed
+- MySQL Workbench
 
-# Requirements 
+## Create the Heroku project 
 
-* Golang 
-* An Unix OS - (we optimized the handling of pool of connection for the referee using epoll, see references 1 & 2 for more info). If you don't have epoll you can use docker (see [docker section](#docker)).
+Login to your Heroku account 
 
-# Architecture 
-
-The project is build to mimic the process of a pub/sub protocol but over websockets. The server represents a broker and relay published messages by the referee (aka publisher) to watchers (aka subscriber) of a match.
-
-When the server is launched it will wait for incoming websocket connection requests. See [routes](#routes)
-
-* Referee request : the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. **The referee front-end generates and sends an unique ID as a string in the URL query**. See [watcher.go](client/watcher.go) or [referee.go](client/referee.go) for examples. *Possible example : ws://127.0.0.1:8000/referee?**refereeID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
-
-* Watcher request : the watcher initiate a websocket connection to receive updates. Whenever the referee of the match sends an update about the match the watcher is following, the server will forward those updates to him. **The watcher sends the ID of the match (referee ID) he/she wants to get live updates from in the URL query**. *Possible example : ws://127.0.0.1:8000/spectateur?**matchID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
-
-* Live match request : Match ID can be retrieved using a GET request.
-
-We store the referees connections in a map that is controlled by an epoll instance (not available in windows, use docker provided in the repo, see [docker](#docker)) that will save ressources while waiting for referee to post messages (see reference 1 & 2 for more info about the optimization).
-
-We have another map of map to link the referee to a pool of watchers (the keys are the referee ID and the values are a map of watchers connections). Whenever a referee sends an update, the epoll instance catch it and retrieves the pool of watcher for that referee using this map of map. We then iterate over the pool of connection and send the update to every watcher. Just like a pub/sub broker.
-
-**When you create a new match, the front-end needs to generate an unique ID (UUID) and send it to the server in the URL query as a param (after the '?' in the query) when creating the websocket connection. Same is applied when you want to follow a match live score. Example can be found in [watcher.go](client/watcher.go) and [referee.go](client/referee.go)**
-
-# Lost of connection 
-
-* **Watcher side** : if the connection is lost from the watcher side, a new unique ID for the watcher is generated and all the previous events are sent to the watcher by the server when reconnecting. When the referee will send new updates, the server will remove the previous connection from the map of connection. The match ID must be supplied in the websocket connection as a query param.
-
-* **Referee side** : if the connection is lost from the referee side, we do not remove the referee ID from the map since every watchers of a match are linked to a match by the referee ID (since he/she is in charge of sending updates, he/she acts like a topic). **It is the duty of the front developer to generate an unique ID and cache it in the frontend in order to resend it via a websocket connection to register the referee again (aka a reconnection) when he/she tries to reconnect to the server.** The pool of watcher is kept intact and the referee can sends update again.
-
-
-
-# Routes 
-
-* */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. pass the refereeID a a string (key = refereeID, key = UUID)
-* */spectateur* : This route is used to instantiate the websocket connection for a watcher to receive live event of a specified match. The match ID must be passed in the URL request (key = matchID, key = UUID of the match)
-* */live-match* : This route returns the live match that can be followed. Use the result of this GET request to initiate a websocket connection with the server.
-
-# Database 
-
-We use a mySQL database where every events from a match are stored. When a client connects to a match the aim is to get all the events he/she missed and sends them to him/her.
-
-# Test 
-
-In order to test the system, just launch three terminal and use the following command : 
-
-```
-// in the server folder
-go run *.go 
-// in the client folder
-go run referee.go
-
-go run client.go
+```term
+$ heroku login
+heroku: Press any key to open up the browser to login or q to exit
+ ›   Warning: If browser does not open, visit
+ ›   https://cli-auth.heroku.com/auth/browser/***
+heroku: Waiting for login...
+Logging in... done
+Logged in as me@example.com
 ```
 
-* ```go run *.go``` will create the server and listen for incoming requests. You should see a connected message indicating you succesfully connected to database.
-* ```go run referee.go``` will create an unique ID for the referee program and send it via a POST request to the server, the server will register this ID as a referee and will wait for websocket connection. Then the referee program create a websocket connection and start sending fake updates.
-* ```go run client.go``` will retrieve live match that can be follow via a GET request to the route */live-match*. Then will take the first entry in the array of ID of match and send a POST request with it to notify the server that the watcher wants to get updates on that particular match. 
+Create a project on Heroku. The command will set up an heroku project with a random name.
 
-# Docker 
-
-To run the server in a docker environment use the following command inside the global directory : 
-
-```bash
-# run docker compose and free command line
-docker-compose up -d 
-
-# query the message from the server instance
-docker logs -f server
-
-# you can now run referee.go and watcher.go
-# inside client 
-go run referee.go 
-go run watcher.go
+```term
+$ heroku create
+Creating blooming-water-4431... done
+http://blooming-water-4431.herokuapp.com/ | git@heroku.com:blooming-water-4431.git
+Git remote heroku added
 ```
 
-# References 
+## Add a MySQL add-on on Heroku
 
-* 1 - [Going Infinite, handling 1 millions websockets connections in Go / Eran Yanay](https://www.youtube.com/watch?v=LI1YTFMi8W4&t=1928s)
-* 2 - [eranyanay/1m-go-websockets github repo](https://github.com/eranyanay/1m-go-websockets)
-* 3 - [mqtt-essentials](https://www.hivemq.com/tags/mqtt-essentials/)
-* 4 - [gobwas](https://github.com/gobwas/ws)
-* 5 - [gorilla/websocket](https://github.com/gorilla/websocket)
-* 6 - [Accessing a relational database](https://go.dev/doc/tutorial/database-access)
+After the project is created by Heroku, you need to configure the add-on for mysql. 
+Go on Overview section of your project and click on Configure Add-ons
 
-# TODO 
+![Overview](images/overview.jpg)
 
-* cache the id of the referee in order to reconnect to the existing pool of watchers
-* create the database for match (id_Match, event, id_Tournoi, id_equipe1, id_equipe2)
-* create the database for tournament (id_Tournoi, nom)
-* handle creation of match
-    * create team name
-    * create sport type
-    * register the team in the match database
-    * create a "get-summary" route to return summary of a match (takes a matchid) -> returns score, faults, timeout from history DB
-    * create a struct to retrieve match event for the get-summary route {id_match, equipe, event_type, value}
-*  handle creation of tournament and joining a tournament by sending the tournament ID when creating a match
+Then search for mysql and select *ClearDB MySQL* and click *Submit Order Form*.
+
+![ClearDB MySQL](images/mysql.PNG)
+
+Go to to the *Settings* section once it's done and click *Reveal Config Vars* in the *Config Vars* part.
+Add a new global variable *ENV* and key *PROD*. You can also check the mysql databases credentials. We will use those to populate the database on Heroku using MySQL Workbench. So do not close the page yet.
+
+![config vars](images/config_vars.PNG)
+![credentials bdd](images/credentials_bdd.PNG)
+
+## Populate the Heroku database
+
+Launch MySQL workbench and click on the plus button (+). Use the credentials to connect to the DB and click on *Test Connection*
+
+![workbench](images/workbench.PNG)
+![bdd connection](images/bdd_connection.PNG)
+![sucess](images/success_bdd_connection.PNG)
+
+You can now connect to the database remotly. Click on the newly created connection and select *Server > Data Import*
+
+![data import](images/data_import.PNG)
+
+Open the *create_tables.sql* file and modify the first line to use the correct database. Check the credentials or just look at the name of the db on your left panel 
+
+Select *Import from Self-Contained File* and select the *create_tables.sql* file. 
+
+![SQL schema](images/schema.PNG)
+
+Click on *Start Import* button. You should see this as a sucess.
+
+![bdd import sucess](images/success_bdd_import.PNG)
+
+You can click on the db and refresh it, you should see the tables correctly imported. 
+
+![tables](images/tables_bdd.PNG)
+
+## Update the ConnectToDB function in bdd.go
+
+You need to update the ConnectToDB function in [bdd.go](bdd.go) in order to update the credentials with your Heroku DB. You need to update the *DATABASE_URL* variable with the following the syntax : 
+
+```go
+DATABASE_URL='user:pass@tcp(hostname:3306)/your_heroku_database'
+```
+
+## Push the server app on Heroku
+
+Run the following command in your heroku CLI and on the project folder. Don't forget to ```heroku login```
+
+```term
+$ git init
+$ git add .
+$ git commit -m "server deployment"
+```
+
+Push the files to Heroku.
+
+```term 
+git push heroku main
+Enumerating objects: 521, done.
+Counting objects: 100% (521/521), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (309/309), done.
+Writing objects: 100% (521/521), 226.26 KiB | 45.25 MiB/s, done.
+Total 521 (delta 141), reused 501 (delta 134)
+remote: Compressing source files... done.
+remote: Building source:
+remote:
+remote: -----> Go app detected
+remote: -----> Fetching jq... done
+remote:
+remote: -----> Detected go modules - go.mod
+remote:
+remote: -----> Installing go1.17.2
+remote: -----> Fetching go1.17.2.linux-amd64.tar.gz... done
+remote:  !!    Installing package '.' (default)
+remote:  !!
+remote:  !!    To install a different package spec add a comment in the following form to your `go.mod` file:
+remote:  !!    // +heroku install ./cmd/...
+remote:  !!
+remote: -----> Running: go install -v -tags heroku -mod=vendor .
+remote: gopkg.in/bluesuncorp/validator.v5
+remote: github.com/gin-gonic/gin/render
+remote: github.com/manucorporat/sse
+remote: github.com/mattn/go-colorable
+remote: golang.org/x/net/context
+remote: github.com/heroku/x/hmetrics
+remote: github.com/heroku/x/hmetrics/onload
+remote: github.com/gin-gonic/gin/binding
+remote: github.com/gin-gonic/gin
+remote: github.com/heroku/go-getting-started
+remote:
+remote: Compiled the following binaries:
+remote:        ./bin/go-getting-started
+remote:
+remote: -----> Discovering process types
+remote:        Procfile declares types -> web
+remote:
+remote: -----> Compressing...
+remote:        Done: 5.5M
+remote: -----> Launching...
+remote:        Released v3
+remote:        https://go-on-heroku.herokuapp.com/ deployed to Heroku
+remote:
+remote: Verifying deploy... done.
+To https://git.heroku.com/go-on-heroku.git
+ * [new branch]      main -> main
+```
+
+The app is built automatically and you should check the logs on Heroku.
+
+![heroku logs](images/heroku_logs.jpg)

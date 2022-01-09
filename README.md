@@ -41,13 +41,22 @@ We have another map of map to link the referee to a pool of watchers (the keys a
 
 * **Referee side** : if the connection is lost from the referee side, we do not remove the referee ID from the map since every watchers of a match are linked to a match by the referee ID (since he/she is in charge of sending updates, he/she acts like a topic). **It is the duty of the front developer to generate an unique ID and cache it in the frontend in order to resend it via a websocket connection to register the referee again (aka a reconnection) when he/she tries to reconnect to the server.** The pool of watcher is kept intact and the referee can sends update again.
 
-
-
 # Routes 
 
 * */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. pass the refereeID a a string (key = refereeID, key = UUID)
 * */spectateur* : This route is used to instantiate the websocket connection for a watcher to receive live event of a specified match. The match ID must be passed in the URL request (key = matchID, key = UUID of the match)
 * */live-match* : This route returns the live match that can be followed. Use the result of this GET request to initiate a websocket connection with the server.
+
+# Event 
+
+The front-end for the referee will send event represented in JSON format respecting the following pattern : 
+
+```json
+{
+    Referee : UUID_as_a_string
+    Event : event_as_a_string
+}
+```
 
 # Database 
 

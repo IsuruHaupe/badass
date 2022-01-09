@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	//ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
 	ip          = flag.String("ip", "127.0.0.1", "server IP")
 	connections = flag.Int("conn", 1, "number of websocket connections")
 )
@@ -44,6 +45,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	rand.Seed(time.Now().Unix())
 	// creer la connexion websocket
 	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
+	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
 	// add referee ID to URL
 	params := url.Values{}
 	params.Add("refereeID", referee.ID)

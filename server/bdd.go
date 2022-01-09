@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -73,30 +74,30 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 // https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
 // for problems with mysql
 func ConnectToDB() (db *sql.DB) {
-	var opts string
 	var err error
 	// Get a database handle.
 	if os.Getenv("ENV") == "PROD" {
-		//db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 		// TODO : find a way to parse URL from heroku
-		opts = "zrf4tp5q8lnqwbg5:dlir6epzfdl15g2c@lmc8ixkebgaq22lo.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/ub59fgelo956gbfv"
+		// schema : DATABASE_URL='user:pass@tcp(hostname:3306)/your_heroku_database'
+		DATABASE_URL := "b8afd730e14ddf:660528a6@tcp(us-cdbr-east-05.cleardb.net:3306)/heroku_142de0a726b37cc"
+		db, err = sql.Open("mysql", DATABASE_URL)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
-		/*cfg := mysql.Config{
+		cfg := mysql.Config{
 			User:   os.Getenv("DBUSER"),
 			Passwd: os.Getenv("DBPASS"),
 			Net:    "tcp",
 			Addr:   "127.0.0.1:3306",
 			DBName: "history_of_message",
 		}
-		opts = cfg.FormatDSN()
-		*/
-
-		opts = "root:mypassword@tcp(db:3306)/testdb"
-	}
-
-	db, err = sql.Open("mysql", opts)
-	if err != nil {
-		log.Fatal(err)
+		db, err = sql.Open("mysql", cfg.FormatDSN())
+		if err != nil {
+			log.Fatal(err)
+		}
+		// for docker env
+		//db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	}
 	// MySQL server isn't fully active yet.
 	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start

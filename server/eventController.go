@@ -35,10 +35,18 @@ func EventController() {
 			// case when referee connection is lost
 			if err != nil {
 				fmt.Printf("Erreur en essayant de lire les donnees du referee : %v \n", err)
-				if err := refereeEpoller.Remove(referee); err != nil {
+				// remove connection from epoller
+				fd, err := refereeEpoller.Remove(referee)
+				if err != nil {
 					log.Printf("Failed to remove %v", err)
 				}
+				// close connection
 				referee.Close()
+				// add the referee ID to be removed
+				// we don't remove it now, because the referee might reconnect
+				// using the same refereeID and we want to keep the pool of watcher alive
+				refereeID := refereeFdToString[fd]
+				refereeToRemove[refereeID] = refereeID
 			} else {
 				var decodedMsg Event
 				err = json.Unmarshal(msg, &decodedMsg)
@@ -46,10 +54,17 @@ func EventController() {
 				// case when we can't decode the message
 				if err != nil {
 					fmt.Printf("Erreur en essayant de décoder le message du referee : %v \n", err)
-					if err := refereeEpoller.Remove(referee); err != nil {
+					fd, err := refereeEpoller.Remove(referee)
+					if err != nil {
 						log.Printf("Failed to remove %v", err)
 					}
+					// close connection
 					referee.Close()
+					// add the referee ID to be removed
+					// we don't remove it now, because the referee might reconnect
+					// using the same refereeID and we want to keep the pool of watcher alive
+					refereeID := refereeFdToString[fd]
+					refereeToRemove[refereeID] = refereeID
 				} else {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID

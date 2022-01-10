@@ -77,8 +77,11 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 		if _, ok := referees[refereeID]; !ok {
 			// init empty map of watcher for this referee ID
 			referees[refereeID] = make(map[string]net.Conn)
+		} else {
+			// reconnection of the referee
+			// remove the refereeID from the pool of refereeID to remove in refereeToRemove
+			delete(refereeToRemove, refereeID)
 		}
-		fmt.Printf("Referee ID : %+v", refereeID)
 		fmt.Printf("List d'arbitre : \n %v \n", referees)
 
 		// Upgrade connection
@@ -87,11 +90,14 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// retrieve file descriptor id
-		_, err = refereeEpoller.Add(conn)
+		fd, err := refereeEpoller.Add(conn)
 		if err != nil {
 			log.Printf("Failed to add connection to referee : %v", err)
 			conn.Close()
 		}
+
+		// link the file descriptor to the refereeID
+		refereeFdToString[fd] = refereeID
 	default:
 		log.Fatal("Unrecognised Query type !")
 	}

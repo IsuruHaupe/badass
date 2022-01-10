@@ -41,6 +41,10 @@ We have another map of map to link the referee to a pool of watchers (the keys a
 
 * **Referee side** : if the connection is lost from the referee side, we do not remove the referee ID from the map since every watchers of a match are linked to a match by the referee ID (since he/she is in charge of sending updates, he/she acts like a topic). **It is the duty of the front developer to generate an unique ID and cache it in the frontend in order to resend it via a websocket connection to register the referee again (aka a reconnection) when he/she tries to reconnect to the server.** The pool of watcher is kept intact and the referee can sends update again.
 
+# Referee Garbage Collector 
+
+We use a go routine to periodically remove unused match ID in the list of match ID. Whenever a connection is lost, it is automatically removed from the epoller, this is true for every watcher. However, in the case of referee, the situation where the referee loses his/her connection may happen. In this case the referee's pool of watcher and referee ID in kept alive in the memory of the server. The referee client can then reconnect using a websocket connection and using the same UUID and restart sending events. However after the referee garbage collector is executed, the refereeID and the pool of watcher are removed. Referee and watchers must then reconnect. The cycle used to execute the garbage collection can be changed. **By default it's one hour.**
+
 # Routes 
 
 * */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. pass the refereeID a a string (key = refereeID, key = UUID)

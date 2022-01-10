@@ -41,6 +41,12 @@ type Match struct {
 	tournament Tournament
 }
 
+// this map links the file descriptio (fd) in the epoller to the referee ID
+var refereeFdToString map[int]string
+
+// this is used to garbage collect unused referee connection every X second
+var refereeToRemove map[string]string
+
 // This variable is used to handle referees
 var refereeEpoller *Epoll
 

@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/segmentio/ksuid"
 )
 
 var (
@@ -32,7 +31,7 @@ type RefereeID struct {
 
 func main() {
 	referee := RefereeID{
-		ID: ksuid.New().String(),
+		ID: "23VQUHJiBkSBOuUAZrrvfXU1mvj",
 	}
 	flag.Usage = func() {
 		io.WriteString(os.Stderr, `Websockets client generator
@@ -48,7 +47,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
 	// add referee ID to URL
 	params := url.Values{}
-	params.Add("refereeID", referee.ID)
+	params.Add("refereeID", "23VQUHJiBkSBOuUAZrrvfXU1mvj")
 	u.RawQuery = params.Encode()
 
 	log.Printf("Connecting to %s", u.String())

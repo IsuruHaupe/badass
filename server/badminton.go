@@ -23,11 +23,11 @@ func ParseEventBadminton(event Event, match Match) Match {
 	// badminton := Badminton{}
 	var badminton Badminton
 	json.Unmarshal([]byte(match.matchValues), &badminton)
-	switch event.eventType {
+	switch event.EventType {
 	case "POINT":
 		point := Point{}
-		json.Unmarshal([]byte(event.eventMatch), &point)
-		if event.equipe == "EQUIPEA" {
+		json.Unmarshal([]byte(event.EventValue), &point)
+		if event.Equipe == "EQUIPEA" {
 			badminton.EquipeA.Score += point.point
 		} else {
 			badminton.EquipeB.Score += point.point

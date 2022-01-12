@@ -69,7 +69,8 @@ func EventController() {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
 					fmt.Println("Decoded message : ", decodedMsg)
-					AddEvent(db, decodedMsg)
+					//AddEvent(db, decodedMsg)
+					match := ParseEvent(decodedMsg, "BADMINTON")
 
 					// retrieve referee ID that sent the update
 					IdMatch := decodedMsg.IdMatch
@@ -100,7 +101,7 @@ func EventController() {
 							}*/
 
 							// send new data
-							err = wsutil.WriteServerMessage(watcherConn, websocket.TextMessage, msg)
+							err = wsutil.WriteServerMessage(watcherConn, websocket.TextMessage, match)
 							// handle when connection is dead
 							// delete the watcher from the map
 							// and close connection

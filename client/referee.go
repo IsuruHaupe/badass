@@ -21,18 +21,14 @@ var (
 )
 
 type Event struct {
-	Referee RefereeID `json:"referee"`
-	Event   string    `json:"event"`
-}
-
-type RefereeID struct {
-	ID string `json:"ID"`
+	IdMatch    string `json:"IdMatch"`
+	Equipe     string `json:"Equipe"`
+	EventType  string `json:"EventType"`
+	EventValue string `json:"EventValue"`
 }
 
 func main() {
-	referee := RefereeID{
-		ID: "23VQUHJiBkSBOuUAZrrvfXU1mvj",
-	}
+	IdMatch := "23VQUHJiBkSBOuUAZrrvfXU1mvj"
 	flag.Usage = func() {
 		io.WriteString(os.Stderr, `Websockets client generator
 Example usage: ./client -ip=172.17.0.1 -conn=10
@@ -47,7 +43,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
 	// add referee ID to URL
 	params := url.Values{}
-	params.Add("refereeID", "23VQUHJiBkSBOuUAZrrvfXU1mvj")
+	params.Add("IdMatch", "23VQUHJiBkSBOuUAZrrvfXU1mvj")
 	u.RawQuery = params.Encode()
 
 	log.Printf("Connecting to %s", u.String())
@@ -72,15 +68,17 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		tts = time.Millisecond * 5
 	}
 
+	/*	IdMatch   string `json:"IdMatch"`
+		Equipe    string `json:"Equipe"`
+		EventType string `json:"EventType"`
+		value     string `json:"Value"`*/
 	event := []Event{
-		Event{Referee: referee, Event: "match created"},
-		Event{Referee: referee, Event: "updates on score 1"},
-		Event{Referee: referee, Event: "updates on timeout"},
-		Event{Referee: referee, Event: "updates on score 2"},
-		Event{Referee: referee, Event: "math ended"},
-		Event{Referee: referee, Event: "event apres"},
-		Event{Referee: referee, Event: "event apres"},
-		Event{Referee: referee, Event: "event apres"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "-1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "-1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "-1"},
 	}
 
 	for {

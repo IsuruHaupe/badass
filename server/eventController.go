@@ -68,12 +68,13 @@ func EventController() {
 				} else {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
+					fmt.Println("Decoded message : ", decodedMsg)
 					AddEvent(db, decodedMsg)
 
 					// retrieve referee ID that sent the update
-					refereeID := decodedMsg.Referee.ID
+					IdMatch := decodedMsg.IdMatch
 					// retrieve pool of watchers for this match/referee ID
-					poolOfWatchers := referees[refereeID]
+					poolOfWatchers := referees[IdMatch]
 					// if no watchers, we just save the data otherwise we loop
 					// over the watchers and send them the update
 					if len(poolOfWatchers) != 0 {

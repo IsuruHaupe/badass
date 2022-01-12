@@ -12,7 +12,7 @@ import (
 )
 
 func AddEvent(db *sql.DB, ev Event) (int64, error) {
-	result, err := db.Exec("INSERT INTO history (eventMatch, eventType, equipe, idMatch) VALUES (?)", ev.eventMatch, ev.eventType, ev.equipe, ev.idMatch)
+	result, err := db.Exec("INSERT INTO events (eventMatch, eventType, equipe, idMatch) VALUES (?, ?, ?, ?)", ev.EventValue, ev.EventType, ev.Equipe, ev.IdMatch)
 	if err != nil {
 		return 0, fmt.Errorf("addEvent: %v", err)
 	}
@@ -36,11 +36,11 @@ func CreateTournament(db *sql.DB, tr Tournament) (int64, error) {
 	return id, nil
 }
 
-func GetAllEvent(db *sql.DB) ([]Event, error) {
+/*func GetAllEvent(db *sql.DB) ([]Event, error) {
 	// An albums slice to hold data from returned rows.
 	var events []Event
 
-	rows, err := db.Query("SELECT * FROM history")
+	rows, err := db.Query("SELECT * FROM events")
 	if err != nil {
 		return nil, fmt.Errorf("error : %v", err)
 	}
@@ -58,7 +58,7 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	}
 
 	return events, nil
-}
+}*/
 
 //Add a new match in db
 func CreateMatch(db *sql.DB, m Match) (int64, error) {

@@ -19,7 +19,7 @@ type Point struct {
 	point int
 }
 
-func ParseEventBadminton(event Event, match Match) Match {
+func ParseEventBadminton(event Event, match Match) []byte {
 	// badminton := Badminton{}
 	var badminton Badminton
 	json.Unmarshal([]byte(match.matchValues), &badminton)
@@ -43,5 +43,5 @@ func ParseEventBadminton(event Event, match Match) Match {
 		fmt.Println("error when marshelling in referee.go L.112 : %v", err)
 	}
 	match.matchValues = string(tmp)
-	return match
+	return tmp
 }

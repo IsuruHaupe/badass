@@ -2,8 +2,8 @@ package main
 
 import "fmt"
 
-func ParseEvent(event Event, sport string) Match {
-	match, err := getMatch(db, event.idMatch)
+func ParseEvent(event Event, sport string) []byte {
+	match, err := getMatch(db, event.IdMatch)
 	if err != nil {
 		fmt.Errorf("Parse event error get match : %v", err)
 	}
@@ -11,5 +11,5 @@ func ParseEvent(event Event, sport string) Match {
 	case "BADMINTON":
 		return ParseEventBadminton(event, match)
 	}
-	return Match{}
+	return nil
 }

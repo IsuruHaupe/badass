@@ -98,6 +98,18 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 
 		// link the file descriptor to the refereeID
 		refereeFdToString[fd] = IdMatch
+
+		match := Match{
+			id:          IdMatch,
+			equipeA:     "equipeA",
+			equipeB:     "equipeB",
+			tournament:  0,
+			matchValues: "{}",
+		}
+		// create the match in database
+		CreateMatch(db, match)
+		matchSaved, err := getMatch(db, IdMatch)
+		fmt.Println("MATCH ENREGISTRE :", matchSaved)
 	default:
 		log.Fatal("Unrecognised Query type !")
 	}

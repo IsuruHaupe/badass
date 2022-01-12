@@ -12,7 +12,7 @@ import (
 )
 
 func AddEvent(db *sql.DB, ev Event) (int64, error) {
-	result, err := db.Exec("INSERT INTO history (evenement) VALUES (?)", ev.Event)
+	result, err := db.Exec("INSERT INTO history (eventMatch, eventType, equipe, idMatch) VALUES (?)", ev.eventMatch, ev.eventType, ev.equipe, ev.idMatch)
 	if err != nil {
 		return 0, fmt.Errorf("addEvent: %v", err)
 	}
@@ -23,26 +23,15 @@ func AddEvent(db *sql.DB, ev Event) (int64, error) {
 	return id, nil
 }
 
-func AddTournament(db *sql.DB, tr Tournament) (int64, error) {
-	result, err := db.Exec("INSERT INTO tournament (tournament) VALUES (?)", tr.name)
+//Add a new tournment in db
+func CreateTournament(db *sql.DB, tr Tournament) (int64, error) {
+	result, err := db.Exec("INSERT INTO tournament (nameTournament,sport) VALUES (?,?)", tr.name, tr.sport)
 	if err != nil {
-		return 0, fmt.Errorf("AddTournament: %v", err)
+		return 0, fmt.Errorf("Create Tournament: %v", err)
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("AddTournament: %v", err)
-	}
-	return id, nil
-}
-
-func AddArbitre(db *sql.DB, tr Tournament) (int64, error) {
-	result, err := db.Exec("INSERT INTO tournament (tournament) VALUES (?)", tr.name)
-	if err != nil {
-		return 0, fmt.Errorf("AddTournament: %v", err)
-	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("AddTournament: %v", err)
+		return 0, fmt.Errorf("Create Tournament: %v", err)
 	}
 	return id, nil
 }
@@ -71,7 +60,7 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	return events, nil
 }
 
-// create matchs
+//Add a new match in db
 func CreateMatch(db *sql.DB, m Match) (int64, error) {
 	result, err := db.Exec("INSERT INTO matchs (equipeA,equipeB) VALUES (?,?)", m.equipeA, m.equipeB)
 	if err != nil {

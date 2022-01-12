@@ -13,8 +13,11 @@ type Epoll struct {
 }
 
 type Event struct {
-	Referee RefereeID
-	Event   string
+	id         string
+	idMatch    string
+	equipe     string
+	eventType  string
+	eventMatch string
 }
 
 type Tournament struct {

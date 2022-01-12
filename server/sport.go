@@ -1,8 +1,15 @@
 package main
 
-func ParseEvent(event Event, match Match, sport string) {
+import "fmt"
+
+func ParseEvent(event Event, sport string) Match {
+	match, err := getMatch(db, event.idMatch)
+	if err != nil {
+		fmt.Errorf("Parse event error get match : %v", err)
+	}
 	switch sport {
 	case "BADMINTON":
 		return ParseEventBadminton(event, match)
 	}
+	return Match{}
 }

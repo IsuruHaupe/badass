@@ -73,6 +73,24 @@ func CreateMatch(db *sql.DB, m Match) (int64, error) {
 	return id, nil
 }
 
+func getMatch(db *sql.DB, idMatch string) (Match, error) {
+	rows, err := db.Query("SELECT * from  matchs  where id = (?) ", idMatch)
+	if err != nil {
+		return Match{}, fmt.Errorf("error : %v", err)
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var match Match
+		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.matchValues); err != nil {
+			return Match{}, fmt.Errorf("error : %v", err)
+		}
+		return match, nil
+	}
+	return Match{}, fmt.Errorf("error : %v", err)
+
+}
+
 // https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
 // for problems with mysql
 func ConnectToDB() (db *sql.DB) {

@@ -26,7 +26,7 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		// retrieve ID of the referee
 		matchID := r.URL.Query().Get("matchID")
-		fmt.Println("refereeID =>", matchID)
+		fmt.Println("matchID =>", matchID)
 
 		// Upgrade connection
 		conn, _, _, err := ws.UpgradeHTTP(r, w)
@@ -71,16 +71,16 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		// retrieve ID of the referee
-		refereeID := r.URL.Query().Get("refereeID")
-		fmt.Println("refereeID =>", refereeID)
+		IdMatch := r.URL.Query().Get("IdMatch")
+		fmt.Println("IdMatch =>", IdMatch)
 
-		if _, ok := referees[refereeID]; !ok {
+		if _, ok := referees[IdMatch]; !ok {
 			// init empty map of watcher for this referee ID
-			referees[refereeID] = make(map[string]net.Conn)
+			referees[IdMatch] = make(map[string]net.Conn)
 		} else {
 			// reconnection of the referee
 			// remove the refereeID from the pool of refereeID to remove in refereeToRemove
-			delete(refereeToRemove, refereeID)
+			delete(refereeToRemove, IdMatch)
 		}
 		fmt.Printf("List d'arbitre : \n %v \n", referees)
 
@@ -97,7 +97,7 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// link the file descriptor to the refereeID
-		refereeFdToString[fd] = refereeID
+		refereeFdToString[fd] = IdMatch
 	default:
 		log.Fatal("Unrecognised Query type !")
 	}

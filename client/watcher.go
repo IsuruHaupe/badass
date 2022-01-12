@@ -23,10 +23,6 @@ var (
 )
 var matchs []string
 
-type Match struct {
-	ID string `json:"ID"`
-}
-
 func main() {
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/live-match"}
 	//u := url.URL{Scheme: "http", Host: *ip, Path: "/live-match"}

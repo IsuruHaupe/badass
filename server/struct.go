@@ -13,11 +13,10 @@ type Epoll struct {
 }
 
 type Event struct {
-	id         string
-	idMatch    string
-	equipe     string
-	eventType  string
-	eventMatch string
+	IdMatch    string
+	Equipe     string
+	EventType  string
+	EventValue string
 }
 
 type Tournament struct {
@@ -42,14 +41,6 @@ type Match struct {
 	equipeB    string
 	refere     Referee
 	tournament Tournament
-}
-
-type history struct {
-	id         string
-	idMatch    string
-	equipe     string // EQUIPEA / EQUIPEB
-	eventType  string
-	eventMatch string
 }
 
 // this map links the file descriptio (fd) in the epoller to the referee ID

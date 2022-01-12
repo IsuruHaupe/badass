@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 type Equipe struct {
@@ -41,8 +42,12 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {
-		fmt.Println("error when marshelling in referee.go L.112 : %v", err)
+		log.Fatal("error when marshelling in referee.go L.112 : %v", err)
 	}
 	match.matchValues = string(tmp)
+	err = UpdateMatch(db, match)
+	if err != nil {
+		log.Fatal("Error update match : %v", err)
+	}
 	return tmp
 }

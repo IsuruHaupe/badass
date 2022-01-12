@@ -73,6 +73,15 @@ func CreateMatch(db *sql.DB, m Match) (int64, error) {
 	return id, nil
 }
 
+//Add a new match in db
+func UpdateMatch(db *sql.DB, m Match) error {
+	_, err := db.Exec("UPDATE matchs SET matchValues = (?) where id= (?)", m.matchValues, m.id)
+	if err != nil {
+		return fmt.Errorf("update matchs: %v", err)
+	}
+	return nil
+}
+
 func getMatch(db *sql.DB, idMatch string) (Match, error) {
 	rows, err := db.Query("SELECT * from  matchs  where id = (?) ", idMatch)
 	if err != nil {

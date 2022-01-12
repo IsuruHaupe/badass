@@ -13,3 +13,11 @@ func ParseEvent(event Event, sport string) []byte {
 	}
 	return nil
 }
+
+func InitializeSport(sport string) string {
+	switch sport {
+	case "BADMINTON":
+		return InitializeBadinton()
+	}
+	return ""
+}

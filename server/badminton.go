@@ -51,3 +51,22 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	}
 	return tmp
 }
+
+func InitializeBadinton() string {
+	badminton := Badminton{
+		EquipeA: Equipe{
+			Score:       0,
+			FaultNumber: 0,
+		},
+		EquipeB: Equipe{
+			Score:       0,
+			FaultNumber: 0,
+		},
+	}
+	tmp, err := json.Marshal(badminton)
+	if err != nil {
+		log.Fatal("error initialize badminton struct: %v", err)
+	}
+	return string(tmp)
+
+}

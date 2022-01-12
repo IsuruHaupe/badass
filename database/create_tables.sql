@@ -25,6 +25,7 @@ CREATE TABLE matchs (
   equipeA      VARCHAR(50) NOT NULL,
   equipeB      VARCHAR(50) NOT NULL,
   idTournament INT NULL,
+  matchValues VARCHAR(2000) NULL,
   PRIMARY KEY (`id`),
   KEY `matchs_tournament_idTournamentx` (`idTournament`),
   CONSTRAINT `matchs_tournament` FOREIGN KEY (`idTournament`) REFERENCES `tournament` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION

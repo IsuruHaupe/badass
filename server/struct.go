@@ -37,11 +37,12 @@ type RefereeID struct {
 }
 
 type Match struct {
-	ID         string
-	equipeA    string
-	equipeB    string
-	refere     Referee
-	tournament Tournament
+	id          string
+	equipeA     string
+	equipeB     string
+	refere      Referee
+	tournament  Tournament
+	matchValues string
 }
 
 type history struct {

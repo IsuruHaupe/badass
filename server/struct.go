@@ -41,6 +41,14 @@ type Match struct {
 	tournament Tournament
 }
 
+type history struct {
+	id         string
+	idMatch    string
+	equipe     string // EQUIPEA / EQUIPEB
+	eventType  string
+	eventMatch string
+}
+
 // this map links the file descriptio (fd) in the epoller to the referee ID
 var refereeFdToString map[int]string
 

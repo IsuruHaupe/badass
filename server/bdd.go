@@ -71,6 +71,19 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	return events, nil
 }
 
+// create matchs
+func CreateMatch(db *sql.DB, m Match) (int64, error) {
+	result, err := db.Exec("INSERT INTO matchs (equipeA,equipeB) VALUES (?,?)", m.equipeA, m.equipeB)
+	if err != nil {
+		return 0, fmt.Errorf("Create matchs: %v", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("Create matchs: %v", err)
+	}
+	return id, nil
+}
+
 // https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
 // for problems with mysql
 func ConnectToDB() (db *sql.DB) {

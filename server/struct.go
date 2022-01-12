@@ -35,8 +35,8 @@ type RefereeID struct {
 
 type Match struct {
 	ID         string
-	equipe1    string
-	equipe2    string
+	equipeA    string
+	equipeB    string
 	refere     Referee
 	tournament Tournament
 }

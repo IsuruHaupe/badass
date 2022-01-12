@@ -18,14 +18,14 @@ type Event struct {
 }
 
 type Tournament struct {
-	ID 		string
-	name   	string
-	sport  	string
+	ID    string
+	name  string
+	sport string
 }
 
 type Referee struct {
-	ID 		string
-	name   	string
+	ID      string
+	name    string
 	surname string
 }
 
@@ -34,18 +34,18 @@ type RefereeID struct {
 }
 
 type Match struct {
-	ID 			string
-	equipe1 	string
-	equipe2 	string
-	refere		Referee
-	tournament 	Tournament
-
+	ID         string
+	equipe1    string
+	equipe2    string
+	refere     Referee
+	tournament Tournament
 }
 
-type MatchFollowed struct {
-	mu    sync.Mutex
-	match Match
-}
+// this map links the file descriptio (fd) in the epoller to the referee ID
+var refereeFdToString map[int]string
+
+// this is used to garbage collect unused referee connection every X second
+var refereeToRemove map[string]string
 
 // This variable is used to handle referees
 var refereeEpoller *Epoll
@@ -56,5 +56,3 @@ var referees map[string]map[string]net.Conn
 //var referees map[string]*Epoll
 
 var db *sql.DB
-
-var matchToFollow MatchFollowed

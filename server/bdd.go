@@ -4,13 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func AddEvent(db *sql.DB, ev Event) (int64, error) {
-	result, err := db.Exec("INSERT INTO historique (evenement) VALUES (?)", ev.Event)
+	result, err := db.Exec("INSERT INTO history (evenement) VALUES (?)", ev.Event)
 	if err != nil {
 		return 0, fmt.Errorf("addEvent: %v", err)
 	}
@@ -49,7 +51,7 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	// An albums slice to hold data from returned rows.
 	var events []Event
 
-	rows, err := db.Query("SELECT * FROM historique")
+	rows, err := db.Query("SELECT * FROM history")
 	if err != nil {
 		return nil, fmt.Errorf("error : %v", err)
 	}
@@ -69,23 +71,34 @@ func GetAllEvent(db *sql.DB) ([]Event, error) {
 	return events, nil
 }
 
+// https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
+// for problems with mysql
 func ConnectToDB() (db *sql.DB) {
-	// Capture connection properties.
-	/*cfg := mysql.Config{
-		User:   os.Getenv("DBUSER"),
-		Passwd: os.Getenv("DBPASS"),
-		Net:    "tcp",
-		Addr:   "127.0.0.1:33060",
-		DBName: "history_of_message",
-	}*/
-	// Get a database handle.
 	var err error
-	//db, err = sql.Open("mysql", cfg.FormatDSN())
-	db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
-	if err != nil {
-		log.Fatal(err)
+	// Get a database handle.
+	if os.Getenv("ENV") == "PROD" {
+		// TODO : find a way to parse URL from heroku
+		// schema : DATABASE_URL='user:pass@tcp(hostname:3306)/your_heroku_database'
+		DATABASE_URL := "b8afd730e14ddf:660528a6@tcp(us-cdbr-east-05.cleardb.net:3306)/heroku_142de0a726b37cc"
+		db, err = sql.Open("mysql", DATABASE_URL)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		cfg := mysql.Config{
+			User:   os.Getenv("DBUSER"),
+			Passwd: os.Getenv("DBPASS"),
+			Net:    "tcp",
+			Addr:   "127.0.0.1:3306",
+			DBName: "history_of_message",
+		}
+		db, err = sql.Open("mysql", cfg.FormatDSN())
+		if err != nil {
+			log.Fatal(err)
+		}
+		// for docker env
+		//db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	}
-
 	// MySQL server isn't fully active yet.
 	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start
 	// up in time.
@@ -93,6 +106,6 @@ func ConnectToDB() (db *sql.DB) {
 		fmt.Println("Attempting connection to db")
 		time.Sleep(5 * time.Second)
 	}
-	fmt.Println("Connected")
+	fmt.Println("Connected !")
 	return
 }

@@ -35,10 +35,18 @@ func EventController() {
 			// case when referee connection is lost
 			if err != nil {
 				fmt.Printf("Erreur en essayant de lire les donnees du referee : %v \n", err)
-				if err := refereeEpoller.Remove(referee); err != nil {
+				// remove connection from epoller
+				fd, err := refereeEpoller.Remove(referee)
+				if err != nil {
 					log.Printf("Failed to remove %v", err)
 				}
+				// close connection
 				referee.Close()
+				// add the referee ID to be removed
+				// we don't remove it now, because the referee might reconnect
+				// using the same refereeID and we want to keep the pool of watcher alive
+				refereeID := refereeFdToString[fd]
+				refereeToRemove[refereeID] = refereeID
 			} else {
 				var decodedMsg Event
 				err = json.Unmarshal(msg, &decodedMsg)
@@ -46,10 +54,17 @@ func EventController() {
 				// case when we can't decode the message
 				if err != nil {
 					fmt.Printf("Erreur en essayant de décoder le message du referee : %v \n", err)
-					if err := refereeEpoller.Remove(referee); err != nil {
+					fd, err := refereeEpoller.Remove(referee)
+					if err != nil {
 						log.Printf("Failed to remove %v", err)
 					}
+					// close connection
 					referee.Close()
+					// add the referee ID to be removed
+					// we don't remove it now, because the referee might reconnect
+					// using the same refereeID and we want to keep the pool of watcher alive
+					refereeID := refereeFdToString[fd]
+					refereeToRemove[refereeID] = refereeID
 				} else {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
@@ -111,62 +126,7 @@ func EventController() {
 						}*/
 					}
 				}
-				// envoyer la MAJ au spectateur
-				// il faut discriminer les spectateurs en fonction des matchs qu'ils regardent
-
-				// send message example
-				//log.Printf("Server sending message")
-				//err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte(event[rand.Intn(len(event))]))
-				//if err != nil {
-				//	if err := epoller.Remove(conn); err != nil {
-				//		log.Printf("Failed to remove %v", err)
-				//	}
-				//	conn.Close()
-				//}
 			}
 		}
 	}
 }
-
-/*func Start() {
-	event := [5]string{"match created",
-		"updates on score 1",
-		"updates on timeout",
-		"updates on score 2",
-		"math ended"}
-	for {
-		connections, err := epoller.Wait()
-		if err != nil {
-			log.Printf("Failed to epoll wait %v", err)
-			continue
-		}
-		for _, conn := range connections {
-			if conn == nil {
-				break
-			}
-			tts := time.Second
-			time.Sleep(tts)
-			// receive message
-			#msg, _, err := wsutil.ReadClientData(conn)
-			#if err != nil {
-			#	if err := epoller.Remove(conn); err != nil {
-			#		log.Printf("Failed to remove %v", err)
-			#	}
-			#	conn.Close()
-			#} else {
-			#	// This is commented out since in demo usage, stdout is showing messages sent from > 1M connections at very high rate
-			#	log.Printf("msg: %s", string(msg))
-			#}
-
-			// send message
-			log.Printf("Server sending message")
-			err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte(event[rand.Intn(len(event))]))
-			if err != nil {
-				if err := epoller.Remove(conn); err != nil {
-					log.Printf("Failed to remove %v", err)
-				}
-				conn.Close()
-			}
-		}
-	}
-}*/

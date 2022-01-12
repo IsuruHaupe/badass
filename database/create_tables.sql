@@ -10,8 +10,8 @@ CREATE TABLE history (
   eventType  VARCHAR(128) NOT NULL,
   eventMatch      VARCHAR(500) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `history_match_idMatchx` (`idMatch`),
-  CONSTRAINT `history_match` FOREIGN KEY (`idMatch`) REFERENCES `match` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `history_matchs_idMatchsx` (`idMatch`),
+  CONSTRAINT `history_matchs` FOREIGN KEY (`idMatch`) REFERENCES `matchs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE tournament (
@@ -21,22 +21,22 @@ CREATE TABLE tournament (
   PRIMARY KEY (`id`),
   KEY `tournament_sport_sportx` (`sport`),
   CONSTRAINT `tournament_sport` FOREIGN KEY (`sport`) REFERENCES `sport` (`name`) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
+
 
 CREATE TABLE arbitre (
-  id         INT AUTO_INCREMENT NOT NULL,
-  nameArbitre      VARCHAR(50) NOT NULL,
+  id INT AUTO_INCREMENT NOT NULL,
+  nameArbitre VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE match (
-  id         INT AUTO_INCREMENT NOT NULL,
+CREATE TABLE matchs (
+  id           INT AUTO_INCREMENT NOT NULL,
   equipeA      VARCHAR(50) NOT NULL,
   equipeB      VARCHAR(50) NOT NULL,
   idTournament INT NULL,
   PRIMARY KEY (`id`),
-  KEY `match_tournament_idTournamentx` (`idTournament`),
-  CONSTRAINT `match_tournament` FOREIGN KEY (`idTournament`) REFERENCES `tournament` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `matchs_tournament_idTournamentx` (`idTournament`),
+  CONSTRAINT `matchs_tournament` FOREIGN KEY (`idTournament`) REFERENCES `tournament` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE sport (

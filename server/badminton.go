@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -27,9 +26,7 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	switch event.EventType {
 	case "POINT":
 		point := Point{}
-		fmt.Println(event.EventValue)
 		json.Unmarshal([]byte(event.EventValue), &point)
-		fmt.Println("POINT UNMARSHAL : ", point)
 		if event.Equipe == "EQUIPEA" {
 			badminton.EquipeA.Score += point.Point
 		} else {

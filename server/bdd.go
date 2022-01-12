@@ -62,9 +62,9 @@ func CreateTournament(db *sql.DB, tr Tournament) (int64, error) {
 
 //Add a new match in db
 func CreateMatch(db *sql.DB, m Match) (int64, error) {
-	result, err := db.Exec("INSERT INTO matchs (equipeA,equipeB) VALUES (?,?)", m.equipeA, m.equipeB)
+	result, err := db.Exec("INSERT INTO matchs (id, equipeA, equipeB, matchValues) VALUES (?,?,?,?)", m.id, m.equipeA, m.equipeB, m.matchValues)
 	if err != nil {
-		return 0, fmt.Errorf("Create matchs: %v", err)
+		return 0, fmt.Errorf("Create matchs error: %v", err)
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -83,7 +83,7 @@ func UpdateMatch(db *sql.DB, m Match) error {
 }
 
 func getMatch(db *sql.DB, idMatch string) (Match, error) {
-	rows, err := db.Query("SELECT * from  matchs  where id = (?) ", idMatch)
+	rows, err := db.Query("SELECT * from  matchs  where id = ? ", idMatch)
 	if err != nil {
 		return Match{}, fmt.Errorf("error : %v", err)
 	}

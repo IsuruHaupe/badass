@@ -104,12 +104,14 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 			equipeA:     "equipeA",
 			equipeB:     "equipeB",
 			tournament:  0,
-			matchValues: "{}",
+			matchValues: InitializeSport("BADMINTON"),
 		}
 		// create the match in database
 		CreateMatch(db, match)
-		matchSaved, err := getMatch(db, IdMatch)
-		fmt.Println("MATCH ENREGISTRE :", matchSaved)
+		_, err = getMatch(db, IdMatch)
+		if err != nil {
+			fmt.Println("ERROR : ", err)
+		}
 	default:
 		log.Fatal("Unrecognised Query type !")
 	}

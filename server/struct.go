@@ -39,8 +39,7 @@ type Match struct {
 	id          string
 	equipeA     string
 	equipeB     string
-	refere      Referee
-	tournament  Tournament
+	tournament  int
 	matchValues string
 }
 

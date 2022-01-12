@@ -16,7 +16,7 @@ type Badminton struct {
 
 //value of event
 type Point struct {
-	point int
+	Point int `json:"Point"`
 }
 
 func ParseEventBadminton(event Event, match Match) []byte {
@@ -26,11 +26,13 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	switch event.EventType {
 	case "POINT":
 		point := Point{}
+		fmt.Println(event.EventValue)
 		json.Unmarshal([]byte(event.EventValue), &point)
+		fmt.Println("POINT UNMARSHAL : ", point)
 		if event.Equipe == "EQUIPEA" {
-			badminton.EquipeA.Score += point.point
+			badminton.EquipeA.Score += point.Point
 		} else {
-			badminton.EquipeB.Score += point.point
+			badminton.EquipeB.Score += point.Point
 		}
 	case "FAULT":
 
@@ -38,7 +40,6 @@ func ParseEventBadminton(event Event, match Match) []byte {
 
 	}
 	tmp, err := json.Marshal(badminton)
-	fmt.Println(tmp)
 	if err != nil {
 		fmt.Println("error when marshelling in referee.go L.112 : %v", err)
 	}

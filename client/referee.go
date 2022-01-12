@@ -73,12 +73,12 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		EventType string `json:"EventType"`
 		value     string `json:"Value"`*/
 	event := []Event{
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "1"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "-1"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "1"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "-1"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "1"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "-1"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		/*Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{point:1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{point:-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:-1}"},*/
 	}
 
 	for {

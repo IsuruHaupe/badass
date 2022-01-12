@@ -68,7 +68,6 @@ func EventController() {
 				} else {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
-					fmt.Println("Decoded message : ", decodedMsg)
 					//AddEvent(db, decodedMsg)
 					match := ParseEvent(decodedMsg, "BADMINTON")
 

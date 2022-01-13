@@ -35,6 +35,11 @@ We have another map of map to link the referee to a pool of watchers (the keys a
 
 **When you create a new match, the front-end needs to generate an unique ID (UUID) and send it to the server in the URL query as a param (after the '?' in the query) when creating the websocket connection. Same is applied when you want to follow a match live score. Example can be found in [watcher.go](client/watcher.go) and [referee.go](client/referee.go)**
 
+# Improvement - Add a new sport
+
+We work hard to find a way to allow new developpers to code new sports. That is to say the application is agnostic to any sport.
+If you want to add a new sport you should treat it each a switch case for each event type. Every time a new event is send, we use a switch case in ```sports.go``` to disciminate the sport and then we use a switch case to parse the event. You should create a new *my_sport.go* and treat each event accordingly. See *badminton.go* for examples.
+
 # Lost of connection 
 
 * **Watcher side** : if the connection is lost from the watcher side, a new unique ID for the watcher is generated and all the previous events are sent to the watcher by the server when reconnecting. When the referee will send new updates, the server will remove the previous connection from the map of connection. The match ID must be supplied in the websocket connection as a query param.
@@ -59,9 +64,9 @@ The front-end for the referee will send event represented in JSON format respect
 {
     IdMatch: IdMatch,
     Equipe: "EQUIPEA",
-    EventType: "POINT",
+    EventType: "POINT", //refer to the switch case in your sports (see badminton.go for example - ParseEventBadminton function)
     EventValue: "{\"Point\":1}"
-},
+}
 ```
 
 # Database 

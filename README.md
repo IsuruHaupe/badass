@@ -57,9 +57,11 @@ The front-end for the referee will send event represented in JSON format respect
 
 ```json
 {
-    Referee : UUID_as_a_string
-    Event : event_as_a_string
-}
+    IdMatch: IdMatch,
+    Equipe: "EQUIPEA",
+    EventType: "POINT",
+    EventValue: "{\"Point\":1}"
+},
 ```
 
 # Database 

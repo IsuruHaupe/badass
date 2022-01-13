@@ -19,6 +19,7 @@ type Point struct {
 	Point int `json:"Point"`
 }
 
+// function to treat each events for this sport
 func ParseEventBadminton(event Event, match Match) []byte {
 	// badminton := Badminton{}
 	var badminton Badminton
@@ -49,6 +50,7 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	return tmp
 }
 
+// database related
 func InitializeBadinton() string {
 	badminton := Badminton{
 		EquipeA: Equipe{

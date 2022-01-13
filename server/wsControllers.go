@@ -99,6 +99,7 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 		// link the file descriptor to the refereeID
 		refereeFdToString[fd] = IdMatch
 
+		// TODO : change this for a general sports
 		match := Match{
 			id:          IdMatch,
 			equipeA:     "equipeA",
@@ -113,6 +114,6 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("ERROR : ", err)
 		}
 	default:
-		log.Fatal("Unrecognised Query type !")
+		log.Fatal("Unrecognised Method type !")
 	}
 }

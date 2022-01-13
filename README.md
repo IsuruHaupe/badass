@@ -1,3 +1,21 @@
+
+- [Background](#background)
+- [Purpose of this project](#purpose-of-this-project)
+- [General purpose of this architecture](#general-purpose-of-this-architecture)
+- [Requirements](#requirements)
+- [Architecture](#architecture)
+- [Improvement - Add a new sport](#improvement---add-a-new-sport)
+- [Lost of connection](#lost-of-connection)
+- [Referee Garbage Collector](#referee-garbage-collector)
+- [Routes](#routes)
+- [Event](#event)
+- [Database](#database)
+- [Test](#test)
+- [Docker](#docker)
+- [References](#references)
+- [TODO](#todo)
+
+
 # Background 
 
 Sport does not yet have the productivity tools of companies and projects!

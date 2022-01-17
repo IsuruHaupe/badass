@@ -42,6 +42,7 @@ func main() {
 	go EventController()
 	go RefereeGarbageCollector()
 
+	http.HandleFunc("/create-match", InitMatch)
 	http.HandleFunc("/referee", RefereeWsController)
 	http.HandleFunc("/spectateur", WatcherWsController)
 	http.HandleFunc("/live-match", GetLiveMatch)

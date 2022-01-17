@@ -40,7 +40,7 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {
-		log.Fatal("error when marshelling in referee.go L.112 : %v", err)
+		log.Fatal("error when marshelling in referee.go: %v", err)
 	}
 	match.matchValues = string(tmp)
 	err = UpdateMatch(db, match)
@@ -51,7 +51,7 @@ func ParseEventBadminton(event Event, match Match) []byte {
 }
 
 // database related
-func InitializeBadinton() string {
+func InitializeBadminton() string {
 	badminton := Badminton{
 		EquipeA: Equipe{
 			Score:       0,

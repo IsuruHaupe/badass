@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gobwas/ws"
+	"github.com/gobwas/ws/wsutil"
+	"github.com/gorilla/websocket"
 	"github.com/segmentio/ksuid"
 )
 
@@ -31,7 +33,7 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 		// Upgrade connection
 		conn, _, _, err := ws.UpgradeHTTP(r, w)
 		if err != nil {
-			return
+			log.Printf("Error when creating WebSocket connection : %v", err)
 		}
 
 		// get history of events
@@ -55,8 +57,21 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Printf("Pool de watcher : \n %v \n", referees)
+		err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte("Connection succeed !\n"))
+		// handle when connection is dead
+		// delete the watcher from the map
+		// and close connection
+		if err != nil {
+			poolOfWatchers := referees[matchID]
+			delete(poolOfWatchers, watcherID)
+			if _, ok := poolOfWatchers[watcherID]; ok {
+				log.Printf("Failed to remove %v", err)
+			}
+			conn.Close()
+		}
 	default:
-		log.Fatal("Unrecognised Query type !")
+		w.Write([]byte("Unrecognised Query type !"))
+		log.Printf("Unrecognised Query type !")
 	}
 }
 
@@ -82,7 +97,7 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 			// remove the refereeID from the pool of refereeID to remove in refereeToRemove
 			delete(refereeToRemove, IdMatch)
 		}
-		fmt.Printf("List d'arbitre : \n %v \n", referees)
+		fmt.Printf("Liste d'arbitres : \n %v \n", referees)
 
 		// Upgrade connection
 		conn, _, _, err := ws.UpgradeHTTP(r, w)
@@ -99,21 +114,44 @@ func RefereeWsController(w http.ResponseWriter, r *http.Request) {
 		// link the file descriptor to the refereeID
 		refereeFdToString[fd] = IdMatch
 
-		// TODO : change this for a general sports
-		match := Match{
-			id:          IdMatch,
-			equipeA:     "equipeA",
-			equipeB:     "equipeB",
-			tournament:  0,
-			matchValues: InitializeSport("BADMINTON"),
-		}
-		// create the match in database
-		CreateMatch(db, match)
+		// check if match has been created previously
 		_, err = getMatch(db, IdMatch)
 		if err != nil {
 			fmt.Println("ERROR : ", err)
+			err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte("ERROR : Match not found in database, please make sure to create the match before connecting to it using 'create-match' route.\n"))
+			// handle when connection is dead
+			// delete the watcher from the map
+			// and close connection
+			if err != nil {
+				delete(referees, IdMatch)
+				if _, ok := referees[IdMatch]; ok {
+					log.Printf("Failed to remove %v", err)
+				}
+				_, err := refereeEpoller.Remove(conn)
+				if err != nil {
+					log.Printf("Failed to remove %v", err)
+				}
+				conn.Close()
+			}
+		} else {
+			err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte("Connection succeed !\n"))
+			// handle when connection is dead
+			// delete the watcher from the map
+			// and close connection
+			if err != nil {
+				delete(referees, IdMatch)
+				if _, ok := referees[IdMatch]; ok {
+					log.Printf("Failed to remove %v", err)
+				}
+				_, err := refereeEpoller.Remove(conn)
+				if err != nil {
+					log.Printf("Failed to remove %v", err)
+				}
+				conn.Close()
+			}
 		}
 	default:
-		log.Fatal("Unrecognised Method type !")
+		w.Write([]byte("Unrecognised Query type !"))
+		log.Printf("Unrecognised Query type !")
 	}
 }

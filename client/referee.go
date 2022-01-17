@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -27,12 +29,31 @@ type Event struct {
 	EventValue string `json:"EventValue"`
 }
 
+// Add sport type in GET
+func getMatchId() string {
+	url := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
+	resp, err := http.Get(url.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(body)
+}
+
 func main() {
 	IdMatch := "23VQUHJiBkSBOuUAZrrvfXU1mvj"
+	//IdMatch := getMatchId()
 	flag.Usage = func() {
 		io.WriteString(os.Stderr, `Websockets client generator
-Example usage: ./client -ip=172.17.0.1 -conn=10
-`)
+	Example usage: ./client -ip=172.17.0.1 -conn=10
+	`)
 		flag.PrintDefaults()
 	}
 	flag.Parse()
@@ -44,6 +65,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	// add referee ID to URL
 	params := url.Values{}
 	params.Add("IdMatch", "23VQUHJiBkSBOuUAZrrvfXU1mvj")
+	//params.Add("IdMatch", IdMatch)
 	u.RawQuery = params.Encode()
 
 	log.Printf("Connecting to %s", u.String())
@@ -68,27 +90,23 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		tts = time.Millisecond * 5
 	}
 
-	/*	IdMatch   string `json:"IdMatch"`
-		Equipe    string `json:"Equipe"`
-		EventType string `json:"EventType"`
-		value     string `json:"Value"`*/
+	//	IdMatch   string `json:"IdMatch"`
+	//	Equipe    string `json:"Equipe"`
+	//	EventType string `json:"EventType"`
+	//	value     string `json:"Value"`
 	event := []Event{
 		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:-1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{point:1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{point:-1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{point:-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":-1}"},
 	}
 
 	for {
 		for i := 0; i < len(conns); i++ {
 			time.Sleep(tts)
 			conn := conns[i]
-			//log.Printf("Spectateur %d sending message", i+1)
-			//if err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5)); err != nil {
-			//	fmt.Printf("Failed to receive pong: %v", err)
-			//}
 			// sending message
 			for i := 0; i < len(event); i++ {
 				time.Sleep(tts)

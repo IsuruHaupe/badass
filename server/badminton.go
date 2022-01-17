@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -19,6 +20,13 @@ type Point struct {
 	Point int `json:"Point"`
 }
 
+// TODO utiliser joueur et commentaire
+type Fault struct {
+	Player     string `json:"Player"`
+	Comment    string `json:"Comment"`
+	FaultValue int    `json:"FaultValue"`
+}
+
 // function to treat each events for this sport
 func ParseEventBadminton(event Event, match Match) []byte {
 	// badminton := Badminton{}
@@ -34,6 +42,15 @@ func ParseEventBadminton(event Event, match Match) []byte {
 			badminton.EquipeB.Score += point.Point
 		}
 	case "FAULT":
+		fault := Fault{}
+		json.Unmarshal([]byte(event.EventValue), &fault)
+		fmt.Println("FAULT :", fault)
+		if event.Equipe == "EQUIPEA" {
+			// in case of cancel we use fault.FaultValue
+			badminton.EquipeA.FaultNumber += fault.FaultValue
+		} else {
+			badminton.EquipeB.FaultNumber += fault.FaultValue
+		}
 
 	case "FIN_MATCH":
 

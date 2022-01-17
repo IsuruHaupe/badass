@@ -95,12 +95,16 @@ func main() {
 	//	EventType string `json:"EventType"`
 	//	value     string `json:"Value"`
 	event := []Event{
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		// POINT
+		/*Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
 		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":-1}"},
 		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":-1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":-1}"},*/
+		// FAULT
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"C'est le rhum qui prend Glenn\", \"FaultValue\":-1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Il sent plus rien\", \"FaultValue\":1}"},
+		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":-1}"},
 	}
 
 	for {

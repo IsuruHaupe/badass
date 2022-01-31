@@ -13,6 +13,7 @@ type Equipe struct {
 type Badminton struct {
 	EquipeA Equipe `json:"EquipeA"`
 	EquipeB Equipe `json:"EquipeB"`
+	Status  string `json:"Status"`
 }
 
 //value of event
@@ -51,8 +52,10 @@ func ParseEventBadminton(event Event, match Match) []byte {
 		} else {
 			badminton.EquipeB.FaultNumber += fault.FaultValue
 		}
-
-	case "FIN_MATCH":
+	case "BEGIN_MATCH":
+		badminton.Status = "MATCH_IN_PROGRESS"
+	case "END_MATCH":
+		badminton.Status = "END_MATCH"
 
 	}
 	tmp, err := json.Marshal(badminton)
@@ -78,6 +81,7 @@ func InitializeBadminton() string {
 			Score:       0,
 			FaultNumber: 0,
 		},
+		Status: "CREATE",
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {

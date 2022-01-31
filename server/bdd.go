@@ -24,16 +24,12 @@ func AddEvent(db *sql.DB, ev Event) (int64, error) {
 }
 
 //Add a new tournment in db
-func CreateTournament(db *sql.DB, tr Tournament) (int64, error) {
-	result, err := db.Exec("INSERT INTO tournament (nameTournament,sport) VALUES (?,?)", tr.name, tr.sport)
+func CreateTournament(db *sql.DB, tr Tournament) error {
+	_, err := db.Exec("INSERT INTO tournament (id,nameTournament,sport) VALUES (?,?,?)", tr.ID, tr.name, tr.sport)
 	if err != nil {
-		return 0, fmt.Errorf("Create Tournament: %v", err)
+		return fmt.Errorf("Create Tournament: %v", err)
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("Create Tournament: %v", err)
-	}
-	return id, nil
+	return nil
 }
 
 /*func GetAllEvent(db *sql.DB) ([]Event, error) {
@@ -61,16 +57,13 @@ func CreateTournament(db *sql.DB, tr Tournament) (int64, error) {
 }*/
 
 //Add a new match in db
-func CreateMatch(db *sql.DB, m Match) (int64, error) {
-	result, err := db.Exec("INSERT INTO matchs (id, equipeA, equipeB, matchValues) VALUES (?,?,?,?)", m.id, m.equipeA, m.equipeB, m.matchValues)
+func CreateMatch(db *sql.DB, m Match) error {
+	_, err := db.Exec("INSERT INTO matchs (id, equipeA, equipeB, matchValues, idTournament) VALUES (?,?,?,?,?)", m.id, m.equipeA, m.equipeB, m.matchValues, m.tournament)
 	if err != nil {
-		return 0, fmt.Errorf("Create matchs error: %v", err)
+		return fmt.Errorf("Create matchs error: %v", err)
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("Create matchs: %v", err)
-	}
-	return id, nil
+
+	return nil
 }
 
 //Add a new match in db
@@ -91,12 +84,53 @@ func getMatch(db *sql.DB, idMatch string) (Match, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var match Match
-		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.matchValues); err != nil {
+		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.tournament, &match.matchValues); err != nil {
 			return Match{}, fmt.Errorf("error : %v", err)
 		}
 		return match, nil
 	}
 	return Match{}, fmt.Errorf("error : %v", err)
+
+}
+
+func getTournament(db *sql.DB, idTournament string) (Tournament, error) {
+	rows, err := db.Query("SELECT * from  tournament  where id = ? ", idTournament)
+	if err != nil {
+		return Tournament{}, fmt.Errorf("error : %v", err)
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var tournament Tournament
+		if err := rows.Scan(&tournament.ID, &tournament.name, &tournament.sport); err != nil {
+			return Tournament{}, fmt.Errorf("error : %v", err)
+		}
+		return tournament, nil
+	}
+	return Tournament{}, fmt.Errorf("error : %v", err)
+
+}
+
+func getMatchForTournament(db *sql.DB, tournamentID string) ([]Match, error) {
+	var matchs []Match = make([]Match, 0)
+	rows, err := db.Query("SELECT * from  matchs  where idTournament = ? ", tournamentID)
+	if err != nil {
+		return nil, fmt.Errorf("error : %v", err)
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var match Match
+		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.matchValues); err != nil {
+			return nil, fmt.Errorf("error : %v", err)
+		}
+		matchs = append(matchs, match)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error : %v", err)
+	}
+
+	return matchs, fmt.Errorf("error : %v", err)
 
 }
 

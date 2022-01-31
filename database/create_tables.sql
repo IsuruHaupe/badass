@@ -15,8 +15,10 @@ CREATE TABLE sport (
   PRIMARY KEY (`name`)
 );
 
+INSERT INTO sport VALUES ("BADMINTON");
+
 CREATE TABLE tournament (
-  id INT AUTO_INCREMENT NOT NULL,
+  id VARCHAR(50) NOT NULL,
   nameTournament VARCHAR(50) NOT NULL,
   sport VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`),
@@ -28,11 +30,11 @@ CREATE TABLE matchs (
   id VARCHAR(50) NOT NULL,
   equipeA VARCHAR(50) NOT NULL,
   equipeB VARCHAR(50) NOT NULL,
-  #idTournament INT NULL,
+  idTournament VARCHAR(50) NOT NULL,
   matchValues VARCHAR(2000) NULL,
-  PRIMARY KEY (`id`)
-  #KEY `matchs_tournament_idTournamentx` (`idTournament`),
-  #CONSTRAINT `matchs_tournament` FOREIGN KEY (`idTournament`) REFERENCES `tournament` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  PRIMARY KEY (`id`),
+  KEY `matchs_tournament_idTournamentx` (`idTournament`),
+  CONSTRAINT `matchs_tournament` FOREIGN KEY (`idTournament`) REFERENCES `tournament` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE events (

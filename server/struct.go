@@ -39,7 +39,7 @@ type Match struct {
 	id          string
 	equipeA     string
 	equipeB     string
-	tournament  int
+	tournament  string
 	matchValues string
 }
 

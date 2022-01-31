@@ -146,3 +146,4 @@ go run watcher.go
     * create a "get-summary" route to return summary of a match (takes a matchid) -> returns score, faults, timeout from history DB
     * create a struct to retrieve match event for the get-summary route {id_match, equipe, event_type, value}
 *  handle creation of tournament and joining a tournament by sending the tournament ID when creating a match
+* Add the referee as a spectator to check if events are being saved correctly

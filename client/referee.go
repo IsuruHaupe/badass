@@ -47,8 +47,58 @@ func getMatchId() string {
 	return string(body)
 }
 
+func initBadmintonTournament() string {
+	// init tournament
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-tournament"}
+	// add params to URL
+	params := url.Values{}
+	params.Add("tournamentName", "les bourres contre-attaques")
+	params.Add("sport", "BADMINTON")
+	//params.Add("IdMatch", IdMatch)
+	u.RawQuery = params.Encode()
+
+	resp, err := http.Get(u.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(body)
+}
+
+func initBadmintonMatch(tournamentID string) string {
+	// init match
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
+	// add teams to URL
+	params := url.Values{}
+	params.Add("equipeA", "les bourres")
+	params.Add("equipeB", "dikatomik")
+	params.Add("tournamentID", tournamentID)
+	//params.Add("IdMatch", IdMatch)
+	u.RawQuery = params.Encode()
+
+	resp, err := http.Get(u.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(body)
+}
+
 func main() {
-	IdMatch := "23VQUHJiBkSBOuUAZrrvfXU1mvj"
 	//IdMatch := getMatchId()
 	flag.Usage = func() {
 		io.WriteString(os.Stderr, `Websockets client generator
@@ -59,18 +109,24 @@ func main() {
 	flag.Parse()
 
 	rand.Seed(time.Now().Unix())
-	// creer la connexion websocket
-	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
-	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
-	// add referee ID to URL
-	params := url.Values{}
-	params.Add("IdMatch", "23VQUHJiBkSBOuUAZrrvfXU1mvj")
-	//params.Add("IdMatch", IdMatch)
-	u.RawQuery = params.Encode()
+	// init tournament
+	tournamentID := initBadmintonTournament()
+	fmt.Println("ID du tournoi : ", tournamentID)
 
+	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
+	// init multiple match and referee them
 	log.Printf("Connecting to %s", u.String())
+	var listOfMatch []string
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
+		// init match using the tournament ID and save its ID
+		listOfMatch = append(listOfMatch, initBadmintonMatch(tournamentID))
+		fmt.Println("ID du match : ", listOfMatch[i])
+		// add match ID to URL
+		params := url.Values{}
+		params.Add("IdMatch", listOfMatch[i])
+		u.RawQuery = params.Encode()
+		// create websocket connection
 		c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 		if err != nil {
 			fmt.Println("Failed to connect", i, err)
@@ -96,25 +152,30 @@ func main() {
 	//	value     string `json:"Value"`
 	event := []Event{
 		// POINT
-		/*Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":-1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":-1}"},*/
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
 		// FAULT
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"C'est le rhum qui prend Glenn\", \"FaultValue\":-1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Il sent plus rien\", \"FaultValue\":1}"},
-		Event{IdMatch: IdMatch, Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":-1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"C'est le rhum qui prend Glenn\", \"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Isuru\", \"Comment\":\"Il sent plus rien\", \"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "FAULT", EventValue: "{\"Player\":\"Glenn\", \"Comment\":\"Imbibe comme une brioche\", \"FaultValue\":1}"},
 	}
 
+	var matchID string
 	for {
+		// for each match ID send events
 		for i := 0; i < len(conns); i++ {
+			// use the corresponding matchID
+			matchID = listOfMatch[i]
 			time.Sleep(tts)
 			conn := conns[i]
 			// sending message
-			for i := 0; i < len(event); i++ {
+			for j := 0; j < len(event); j++ {
 				time.Sleep(tts)
-				body, err := json.Marshal(event[i])
+				event[j].IdMatch = matchID
+				body, err := json.Marshal(event[j])
 				if err != nil {
 					fmt.Println("error when marshelling in referee.go L.112 : %v", err)
 				}

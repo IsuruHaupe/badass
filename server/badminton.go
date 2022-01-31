@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -44,7 +43,6 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	case "FAULT":
 		fault := Fault{}
 		json.Unmarshal([]byte(event.EventValue), &fault)
-		fmt.Println("FAULT :", fault)
 		if event.Equipe == "EQUIPEA" {
 			// in case of cancel we use fault.FaultValue
 			badminton.EquipeA.FaultNumber += fault.FaultValue

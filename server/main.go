@@ -43,9 +43,11 @@ func main() {
 	go RefereeGarbageCollector()
 
 	http.HandleFunc("/create-match", InitMatch)
+	http.HandleFunc("/create-tournament", InitTournament)
 	http.HandleFunc("/referee", RefereeWsController)
 	http.HandleFunc("/spectateur", WatcherWsController)
 	http.HandleFunc("/live-match", GetLiveMatch)
+	http.HandleFunc("/live-tournament", GetLiveMatchForTournament)
 	http.HandleFunc("/", HelloServer)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

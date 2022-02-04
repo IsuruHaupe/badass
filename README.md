@@ -32,31 +32,36 @@ The general purpose of this repo/projet is to transfer any kind of messages from
 
 # Requirements 
 
-* Golang 
+* Golang >= 1.17
 * An Unix OS - (we optimized the handling of pool of connection for the referee using epoll, see references 1 & 2 for more info). If you don't have epoll you can use docker (see [docker section](#docker)).
 
 # Architecture 
 
 The project is build to mimic the process of a pub/sub protocol but over websockets. The server represents a broker and relay published messages by the referee (aka publisher) to watchers (aka subscriber) of a match.
 
-When the server is launched it will wait for incoming websocket connection requests. See [routes](#routes)
+When the server is launched it will wait for incoming websocket connection requests and process incoming requests. See [routes](#routes).
+The idea when you want to interact with the system is that you need to follow a couple of rules: 
 
-* Referee request : the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. **The referee front-end generates and sends an unique ID as a string in the URL query**. See [watcher.go](client/watcher.go) or [referee.go](client/referee.go) for examples. *Possible example : ws://127.0.0.1:8000/referee?**refereeID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
+* You need to create the instance of the match of the tournament in order to get an unique ID
+* You use this unique ID as a param in the URL when initiating a websocket connection. 
+* When you are a referee you send data and when you are a watcher you receive data.
 
-* Watcher request : the watcher initiate a websocket connection to receive updates. Whenever the referee of the match sends an update about the match the watcher is following, the server will forward those updates to him. **The watcher sends the ID of the match (referee ID) he/she wants to get live updates from in the URL query**. *Possible example : ws://127.0.0.1:8000/spectateur?**matchID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
+* How does referee requests work ?
 
-* Live match request : Match ID can be retrieved using a GET request.
+Let's say  a referee need to referee a game. First he/she will create a match using the specified route. See [routes](#routes). With the returned unique ID for a match the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. See [events](#event) to check how events should look like. **The referee front-end send the unique ID in the URL query when creating the websocket**.  See [referee.go](client/referee.go) for more details. *Possible example : ws://127.0.0.1:8000/referee?**IdMatch=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
 
-We store the referees connections in a map that is controlled by an epoll instance (not available in windows, use docker provided in the repo, see [docker](#docker)) that will save ressources while waiting for referee to post messages (see reference 1 & 2 for more info about the optimization).
+* How does watcher requests work ?
+
+Let's say you are a watcher and would like to follow live updates for a specific match. You will need to get the live match being played and get the match ID link to this match using the proper route. See [routes](#routes). When you have your match ID the watcher will initiate a websocket connection to receive updates. Whenever the referee of the match sends an update about the match the watcher is following, the server will forward those updates to him. **The watcher sends the ID of the match (referee ID) he/she wants to get live updates from in the URL query**. *Possible example : ws://127.0.0.1:8000/spectateur?**matchID=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***. See [watcher.go](client/watcher.go) for more details.
+
+We store the referees connections in a map that is controlled by an epoll instance (not available in windows, use docker provided in the repo, see [docker](#docker)) that will save computing ressources while waiting for referee to post messages (see [reference](#references) 1 & 2 for more info about the optimization).
 
 We have another map of map to link the referee to a pool of watchers (the keys are the referee ID and the values are a map of watchers connections). Whenever a referee sends an update, the epoll instance catch it and retrieves the pool of watcher for that referee using this map of map. We then iterate over the pool of connection and send the update to every watcher. Just like a pub/sub broker.
-
-**When you create a new match, the front-end needs to generate an unique ID (UUID) and send it to the server in the URL query as a param (after the '?' in the query) when creating the websocket connection. Same is applied when you want to follow a match live score. Example can be found in [watcher.go](client/watcher.go) and [referee.go](client/referee.go)**
 
 # Improvement - Add a new sport
 
 We work hard to find a way to allow new developpers to code new sports. That is to say the application is agnostic to any sport.
-If you want to add a new sport you should treat it each a switch case for each event type. Every time a new event is send, we use a switch case in ```sports.go``` to disciminate the sport and then we use a switch case to parse the event. You should create a new *my_sport.go* and treat each event accordingly. See *badminton.go* for examples.
+If you want to add a new sport you should treat each case for each event type. Every time a new event is send, we use a switch case in [sports.go](server/sports.go) to disciminate the sport and then we use a switch case to parse the event using specific parser functions. See [badminton.go](server/badminton.go). You should create a new *my_sport.go* and treat each event accordingly.
 
 # Lost of connection 
 
@@ -70,22 +75,45 @@ We use a go routine to periodically remove unused match ID in the list of match 
 
 # Routes 
 
+* */create-match* : TODO
+* */create-tournament* : TODO 
 * */referee* : This route receives the handshake to instantiate a websocket connection between the server and the referee. pass the refereeID a a string (key = refereeID, key = UUID)
 * */spectateur* : This route is used to instantiate the websocket connection for a watcher to receive live event of a specified match. The match ID must be passed in the URL request (key = matchID, key = UUID of the match)
 * */live-match* : This route returns the live match that can be followed. Use the result of this GET request to initiate a websocket connection with the server.
+* */live-tournament* : TODO
 
 # Event 
 
 The front-end for the referee will send event represented in JSON format respecting the following pattern : 
 
+* for creating a tournament in the db
+
 ```json
 {
-    IdMatch: IdMatch,
-    Equipe: "EQUIPEA",
-    EventType: "POINT", //refer to the switch case in your sports (see badminton.go for example - ParseEventBadminton function)
-    EventValue: "{\"Point\":1}"
+    tournamentName: "name of the tournament",
+    sport: "sport",
 }
 ```
+
+
+* for creating a match in the db
+
+```json
+{
+    equipeA: "name of the team A",
+    equipeB: "name of the team B",
+    tournamentID: "ID of the tournament as an UUID",
+}
+```
+
+* when creating a websocket connection you need to add params in the URL : 
+* when creating a websocket connection with a referee : 
+    * IdMatch : id of the match 
+* when creating a websocket connection with a watcher : 
+    * matchID : id of the match 
+* when getting every match for a tournament : 
+    * tournamentID : id of the tournament
+
 
 # Database 
 

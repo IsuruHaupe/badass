@@ -72,6 +72,8 @@ func initBadmintonTournament() string {
 	return string(body)
 }
 
+// This function creates a match using the specified route
+// The request will return an unique match ID.
 func initBadmintonMatch(tournamentID string) string {
 	// init match
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}

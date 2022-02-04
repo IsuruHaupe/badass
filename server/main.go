@@ -42,12 +42,25 @@ func main() {
 	go EventController()
 	go RefereeGarbageCollector()
 
+	// this route creates a match in the db using param query
+	// and returns an unique match id linking this match in db
 	http.HandleFunc("/create-match", InitMatch)
+	// this route creates a tournament in the db using the param query
+	// and returns an unique tournament id linking this tounament in db
 	http.HandleFunc("/create-tournament", InitTournament)
+	// this route is use by the referee to initiate a websocket
+	// and send data over it
 	http.HandleFunc("/referee", RefereeWsController)
+	// this route is use by the watcher to initiaite a websocket
+	// and receive data over it
 	http.HandleFunc("/spectateur", WatcherWsController)
+	// GET request to get live match ID
 	http.HandleFunc("/live-match", GetLiveMatch)
+	// GET request to get all the match for a given tournament ID
+	// given in the query param
 	http.HandleFunc("/live-tournament", GetLiveMatchForTournament)
+	// TODO faire un getTournament pour recuperer l'id de tous les
+	// tournois en live
 	http.HandleFunc("/", HelloServer)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

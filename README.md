@@ -9,6 +9,7 @@
 - [Referee Garbage Collector](#referee-garbage-collector)
 - [Routes](#routes)
 - [Event](#event)
+- [Sports](#sports)
 - [Database](#database)
 - [Test](#test)
 - [Docker](#docker)
@@ -91,7 +92,7 @@ We use a go routine to periodically remove unused match ID in the list of match 
 * [*/get-live-match*](server/getLiveMatch.go) : Get request that returns the live match that can be followed. Use the result of this GET request to initiate a websocket connection with the server using a specific match ID.
 * [*/get-live-match-for-tournament*](server/getLiveMatchForTournament.go) : Get request that returns all the match for a given tournament ID. Pass the following params in the query : 
     * tournamentID : UUID as a string of the tournament
-* */
+* [*/get-live-tournament*](server/getLiveTournament.go) : Get request that returns the live tournaments. Use the result of this GET request to create a match using this tournament ID.
 
 # Event 
 

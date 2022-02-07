@@ -129,7 +129,27 @@ The front-end for the referee will send event represented in JSON format respect
 # Sports 
 Here is the list of sports that the database can handle : 
 
-* badminton : use BADMINTON when creating a tournament with the specified route and sending the sport (ex : sport=BADMINTON). Be careful it is case-sensitive.
+## Badminton
+ use BADMINTON when creating a tournament with the specified route and sending the sport (ex : sport=BADMINTON). Be careful it is case-sensitive.
+
+### Events badminton 
+
+* POINT : Add a point in one equipe 
+    ```
+    matchValues : { 
+        Point : //(int) number of point (can be negatif if the referee cancel a point)
+    }
+    ```
+* FAULT : Add a fault
+    ```
+    matchValues : { 
+        Player : //(String) player name
+        Comment : //(String) comment
+        FaultValue : //(String) type of value (carton rouge/ carton jaune)
+    }
+    ```
+* BEGIN_MATCH : change the status of the match
+* END_MATCH : change the status of the match
 
 # Database 
 

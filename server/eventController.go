@@ -82,7 +82,7 @@ func EventController() {
 							// TODO : send previous events only to new watchers
 							/*previousEvents, err := GetAllEvent(db)
 							if err != nil {
-								log.Fatal(err)
+								fmt.Println(err)
 							}
 							for _, event := range previousEvents {
 								body, err := json.Marshal(event)

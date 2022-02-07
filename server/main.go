@@ -55,12 +55,12 @@ func main() {
 	// and receive data over it
 	http.HandleFunc("/spectateur", WatcherWsController)
 	// GET request to get live match ID
-	http.HandleFunc("/live-match", GetLiveMatch)
+	http.HandleFunc("/get-live-match", GetLiveMatch)
 	// GET request to get all the match for a given tournament ID
 	// given in the query param
-	http.HandleFunc("/live-tournament", GetLiveMatchForTournament)
-	// TODO faire un getTournament pour recuperer l'id de tous les
-	// tournois en live
+	http.HandleFunc("/get-live-match-for-tournament", GetLiveMatchForTournament)
+	// GET request to get all live tournament
+	http.HandleFunc("/get-live-tournament", GetLiveTournament)
 	http.HandleFunc("/", HelloServer)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

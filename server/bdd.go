@@ -93,21 +93,22 @@ func getMatch(db *sql.DB, idMatch string) (Match, error) {
 
 }
 
-func getTournament(db *sql.DB, idTournament string) (Tournament, error) {
-	rows, err := db.Query("SELECT * from  tournament  where id = ? ", idTournament)
+func getAllTournament(db *sql.DB) ([]Tournament, error) {
+	var tournaments []Tournament = make([]Tournament, 0)
+	rows, err := db.Query("SELECT * from  tournament")
 	if err != nil {
-		return Tournament{}, fmt.Errorf("error : %v", err)
+		return nil, fmt.Errorf("error : %v", err)
 	}
 	defer rows.Close()
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var tournament Tournament
 		if err := rows.Scan(&tournament.ID, &tournament.name, &tournament.sport); err != nil {
-			return Tournament{}, fmt.Errorf("error : %v", err)
+			return nil, fmt.Errorf("error : %v", err)
 		}
-		return tournament, nil
+		tournaments = append(tournaments, tournament)
 	}
-	return Tournament{}, fmt.Errorf("error : %v", err)
+	return tournaments, nil
 
 }
 

@@ -19,7 +19,8 @@ func GetLiveMatch(w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(keys)
 	if err != nil {
-		fmt.Println("error when marshelling in referee.go L.40 : %v", err)
+		w.Write([]byte("Error when marshelling live match"))
+		fmt.Println("Error when marshelling live match : %v", err)
 	}
 	w.Write(body)
 }

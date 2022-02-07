@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 )
 
 type Equipe struct {
@@ -58,12 +58,12 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {
-		log.Fatal("error when marshelling in referee.go: %v", err)
+		fmt.Println("error when marshelling in referee.go: %v", err)
 	}
 	match.matchValues = string(tmp)
 	err = UpdateMatch(db, match)
 	if err != nil {
-		log.Fatal("Error update match : %v", err)
+		fmt.Println("Error update match : %v", err)
 	}
 	return tmp
 }
@@ -83,7 +83,7 @@ func InitializeBadminton() string {
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {
-		log.Fatal("error initialize badminton struct: %v", err)
+		fmt.Println("error initialize badminton struct: %v", err)
 	}
 	return string(tmp)
 

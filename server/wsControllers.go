@@ -39,7 +39,7 @@ func WatcherWsController(w http.ResponseWriter, r *http.Request) {
 		// get history of events
 		/*previous_events, err := GetAllEvent(db)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}*/
 		/*for _, event := range previous_events {
 			err = wsutil.WriteServerMessage(conn, websocket.TextMessage, []byte(event.event))

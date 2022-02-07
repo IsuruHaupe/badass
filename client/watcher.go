@@ -24,8 +24,8 @@ var (
 var matchs []string
 
 func main() {
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/live-match"}
-	//u := url.URL{Scheme: "http", Host: *ip, Path: "/live-match"}
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match"}
+	//u := url.URL{Scheme: "http", Host: *ip, Path: "/get-live-match"}
 	fmt.Println(u)
 	getLiveMatch(u.String())
 	fmt.Println(matchs)

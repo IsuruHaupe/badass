@@ -38,11 +38,11 @@ func (e *Epoll) Add(conn net.Conn) (fd int, err error) {
 	return
 }
 
-func (e *Epoll) Remove(conn net.Conn) error {
-	fd := WebsocketFD(conn)
-	err := unix.EpollCtl(e.fd, syscall.EPOLL_CTL_DEL, fd, nil)
+func (e *Epoll) Remove(conn net.Conn) (fd int, err error) {
+	fd = WebsocketFD(conn)
+	err = unix.EpollCtl(e.fd, syscall.EPOLL_CTL_DEL, fd, nil)
 	if err != nil {
-		return err
+		return
 	}
 	e.lock.Lock()
 	defer e.lock.Unlock()
@@ -50,7 +50,7 @@ func (e *Epoll) Remove(conn net.Conn) error {
 	if len(e.connections)%100 == 0 {
 		log.Printf("Total number of connections: %v", len(e.connections))
 	}
-	return nil
+	return
 }
 
 func (e *Epoll) Wait() ([]net.Conn, error) {

@@ -35,10 +35,18 @@ func EventController() {
 			// case when referee connection is lost
 			if err != nil {
 				fmt.Printf("Erreur en essayant de lire les donnees du referee : %v \n", err)
-				if err := refereeEpoller.Remove(referee); err != nil {
+				// remove connection from epoller
+				fd, err := refereeEpoller.Remove(referee)
+				if err != nil {
 					log.Printf("Failed to remove %v", err)
 				}
+				// close connection
 				referee.Close()
+				// add the referee ID to be removed
+				// we don't remove it now, because the referee might reconnect
+				// using the same refereeID and we want to keep the pool of watcher alive
+				refereeID := refereeFdToString[fd]
+				refereeToRemove[refereeID] = refereeID
 			} else {
 				var decodedMsg Event
 				err = json.Unmarshal(msg, &decodedMsg)
@@ -46,19 +54,27 @@ func EventController() {
 				// case when we can't decode the message
 				if err != nil {
 					fmt.Printf("Erreur en essayant de décoder le message du referee : %v \n", err)
-					if err := refereeEpoller.Remove(referee); err != nil {
+					fd, err := refereeEpoller.Remove(referee)
+					if err != nil {
 						log.Printf("Failed to remove %v", err)
 					}
+					// close connection
 					referee.Close()
+					// add the referee ID to be removed
+					// we don't remove it now, because the referee might reconnect
+					// using the same refereeID and we want to keep the pool of watcher alive
+					refereeID := refereeFdToString[fd]
+					refereeToRemove[refereeID] = refereeID
 				} else {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
-					AddEvent(db, decodedMsg)
+					//AddEvent(db, decodedMsg)
+					match := ParseEvent(decodedMsg, "BADMINTON")
 
 					// retrieve referee ID that sent the update
-					refereeID := decodedMsg.Referee.ID
+					IdMatch := decodedMsg.IdMatch
 					// retrieve pool of watchers for this match/referee ID
-					poolOfWatchers := referees[refereeID]
+					poolOfWatchers := referees[IdMatch]
 					// if no watchers, we just save the data otherwise we loop
 					// over the watchers and send them the update
 					if len(poolOfWatchers) != 0 {
@@ -66,7 +82,7 @@ func EventController() {
 							// TODO : send previous events only to new watchers
 							/*previousEvents, err := GetAllEvent(db)
 							if err != nil {
-								log.Fatal(err)
+								fmt.Println(err)
 							}
 							for _, event := range previousEvents {
 								body, err := json.Marshal(event)
@@ -84,7 +100,7 @@ func EventController() {
 							}*/
 
 							// send new data
-							err = wsutil.WriteServerMessage(watcherConn, websocket.TextMessage, msg)
+							err = wsutil.WriteServerMessage(watcherConn, websocket.TextMessage, match)
 							// handle when connection is dead
 							// delete the watcher from the map
 							// and close connection

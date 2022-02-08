@@ -13,8 +13,10 @@ type Epoll struct {
 }
 
 type Event struct {
-	Referee RefereeID
-	Event   string
+	IdMatch    string
+	Equipe     string
+	EventType  string
+	EventValue string
 }
 
 type Tournament struct {
@@ -34,12 +36,18 @@ type RefereeID struct {
 }
 
 type Match struct {
-	ID         string
-	equipe1    string
-	equipe2    string
-	refere     Referee
-	tournament Tournament
+	id          string
+	equipeA     string
+	equipeB     string
+	tournament  string
+	matchValues string
 }
+
+// this map links the file descriptio (fd) in the epoller to the referee ID
+var refereeFdToString map[int]string
+
+// this is used to garbage collect unused referee connection every X second
+var refereeToRemove map[string]string
 
 // This variable is used to handle referees
 var refereeEpoller *Epoll

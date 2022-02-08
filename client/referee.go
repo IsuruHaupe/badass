@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	//ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
-	ip          = flag.String("ip", "127.0.0.1", "server IP")
+	ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
+	//ip          = flag.String("ip", "127.0.0.1", "server IP")
 	connections = flag.Int("conn", 1, "number of websocket connections")
 )
 
@@ -31,7 +31,8 @@ type Event struct {
 
 // Add sport type in GET
 func getMatchId() string {
-	url := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
+	url := url.URL{Scheme: "http", Host: *ip, Path: "/create-match"}
+	//url := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
 	resp, err := http.Get(url.String())
 
 	if err != nil {
@@ -49,7 +50,8 @@ func getMatchId() string {
 
 func initBadmintonTournament() string {
 	// init tournament
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-tournament"}
+	u := url.URL{Scheme: "http", Host: *ip, Path: "/create-tournament"}
+	//u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-tournament"}
 	// add params to URL
 	params := url.Values{}
 	params.Add("tournamentName", "les bourres contre-attaques")
@@ -76,7 +78,8 @@ func initBadmintonTournament() string {
 // The request will return an unique match ID.
 func initBadmintonMatch(tournamentID string) string {
 	// init match
-	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
+	u := url.URL{Scheme: "http", Host: *ip, Path: "/create-match"}
+	//u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
 	// add teams to URL
 	params := url.Values{}
 	params.Add("equipeA", "les bourres")
@@ -115,7 +118,8 @@ func main() {
 	tournamentID := initBadmintonTournament()
 	fmt.Println("ID du tournoi : ", tournamentID)
 
-	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
+	u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
+	//u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/referee"}
 	// init multiple match and referee them
 	log.Printf("Connecting to %s", u.String())
 	var listOfMatch []string

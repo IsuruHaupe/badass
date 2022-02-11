@@ -192,7 +192,7 @@ go run watcher.go
 
 ### Note 
 
-You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectToDB``` function. And maybe update the database inside the docker image. And update referee.go and watcher.go in the client folder.
+You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectToDB``` function. And maybe update the database inside the docker image. And update [referee.go](client/referee.go) and [watcher.go](client/watcher.go) in the client folder.
 
 # References 
 

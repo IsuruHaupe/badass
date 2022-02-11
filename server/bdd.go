@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -149,7 +148,7 @@ func ConnectToDB() (db *sql.DB) {
 			log.Fatal(err)
 		}
 	} else {
-		cfg := mysql.Config{
+		/*cfg := mysql.Config{
 			User:   os.Getenv("DBUSER"),
 			Passwd: os.Getenv("DBPASS"),
 			Net:    "tcp",
@@ -159,9 +158,9 @@ func ConnectToDB() (db *sql.DB) {
 		db, err = sql.Open("mysql", cfg.FormatDSN())
 		if err != nil {
 			log.Fatal(err)
-		}
+		}*/
 		// for docker env
-		//db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
+		db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/testdb")
 	}
 	// MySQL server isn't fully active yet.
 	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start

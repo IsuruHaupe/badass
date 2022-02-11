@@ -190,6 +190,10 @@ go run referee.go
 go run watcher.go
 ```
 
+### Note 
+
+You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectToDB``` function. And maybe update the database inside the docker image. And update referee.go and watcher.go in the client folder.
+
 # References 
 
 * 1 - [Going Infinite, handling 1 millions websockets connections in Go / Eran Yanay](https://www.youtube.com/watch?v=LI1YTFMi8W4&t=1928s)

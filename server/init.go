@@ -10,6 +10,7 @@ import (
 
 func InitMatch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	switch r.Method {
 	case "GET":
 		equipeA := r.URL.Query().Get("equipeA")
@@ -39,6 +40,7 @@ func InitMatch(w http.ResponseWriter, r *http.Request) {
 
 func InitTournament(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	switch r.Method {
 	case "GET":
 		tournamentName := r.URL.Query().Get("tournamentName")

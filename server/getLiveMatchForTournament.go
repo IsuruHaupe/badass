@@ -8,6 +8,7 @@ import (
 
 func GetLiveMatchForTournament(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	//w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	tournamentID := r.URL.Query().Get("tournamentID")
 	matchs, err := getMatchForTournament(db, tournamentID)

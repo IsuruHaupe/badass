@@ -10,9 +10,14 @@
 - [Routes](#routes)
 - [Event](#event)
 - [Sports](#sports)
+  * [Badminton](#badminton)
+    + [Events badminton](#events-badminton)
 - [Database](#database)
 - [Test](#test)
 - [Docker](#docker)
+    + [Note](#note)
+- [Deployment](#deployment)
+- [Security Issue](#security-issue)
 - [References](#references)
 - [TODO](#todo)
 
@@ -61,8 +66,8 @@ We have another map of map to link the referee to a pool of watchers (the keys a
 
 # Improvement - Add a new sport
 
-We work hard to find a way to allow new developpers to code new sports. That is to say the application is agnostic to any sport.
-If you want to add a new sport you should treat each case for each event type. Every time a new event is send, we use a switch case in [sports.go](server/sports.go) to disciminate the sport and then we use a switch case to parse the event using specific parser functions. See [badminton.go](server/badminton.go). You should create a new *my_sport.go* and treat each event accordingly.
+We worked hard to find a way to allow new developpers to code new sports. That is to say the application is agnostic to any sport.
+If you want to add a new sport you should treat each case for each event type in [sports.go](server/sports.go). Every time a new event is received, we use a switch case in [sports.go](server/sports.go) to disciminate the sport and then we use a switch case to parse the event using specific parser functions. See [badminton.go](server/badminton.go). You should create a new *my_sport.go* and treat each event accordingly.
 
 # Lost of connection 
 
@@ -194,6 +199,17 @@ go run watcher.go
 
 You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectToDB``` function. And maybe update the database inside the docker image. And update [referee.go](client/referee.go) and [watcher.go](client/watcher.go) in the client folder.
 
+
+# Deployment 
+
+We deployed a functionnal version of the back-end in heroku. You can do the same by following the readme in the *production* branch in this repository. 
+
+Basically you can deploy this back-end wherever you want (for example on a rasberry pi or a cloud provider) and allow connection on the device so that referee and watchers interact with each other. The referee and the watchers then only need to know the URL of the website to connect to it from the frontend and interact with the server. For this you will need an internet connection (wi-fi or mobile data).
+
+# Security Issue
+
+A ill intentioned user can easily hack a match that is being played by simply querying the live match route and getting the UUID of the match. Then using this UUID can connect via a websocket connection to the referee route. To that extent new developpers contributing on that project should implement secure authentification of user for example using JWT. We didn't have time to implement it but we still wanted to point out that this is feature that will be needed for real use case of this architecture. Please look a the [todo](#todo) section with useful links to implement it.
+
 # References 
 
 * 1 - [Going Infinite, handling 1 millions websockets connections in Go / Eran Yanay](https://www.youtube.com/watch?v=LI1YTFMi8W4&t=1928s)
@@ -206,4 +222,13 @@ You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectTo
 # TODO 
 
 * cache the id of the referee in order to reconnect to the existing pool of watchers (front side)
+* **Handle badminton events (set + end of match and winner / leaving / disqualification) + handle logic events**
+* check if events are returned to the referee for truth of data.
 * Add the referee as a spectator to check if events are being saved correctly (the server should be the only proof of events validity)
+* Implement secure authentification 
+    * https://www.bacancytechnology.com/blog/golang-jwt
+    * https://learn.vonage.com/blog/2020/03/13/using-jwt-for-authentication-in-a-golang-application-dr/
+    * https://www.sohamkamani.com/golang/session-based-authentication/
+    * https://www.sohamkamani.com/golang/password-authentication-and-storage/
+* implement TDD 
+    * https://github.com/quii/learn-go-with-tests

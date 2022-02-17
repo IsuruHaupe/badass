@@ -112,7 +112,7 @@ func InitializeBadminton() string {
 				Status: "SET_IN_PROGRESS",
 			},
 		},
-		Status: "CREATE",
+		Status: "NOT_BEGN",
 	}
 	tmp, err := json.Marshal(badminton)
 	if err != nil {

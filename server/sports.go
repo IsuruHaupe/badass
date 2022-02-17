@@ -12,6 +12,8 @@ func ParseEvent(event Event, sport string) []byte {
 	switch sport {
 	case "BADMINTON":
 		return ParseEventBadminton(event, match)
+	case "FOOTBALL":
+		return ParseEventFootball(event, match)
 	}
 	return nil
 }
@@ -21,6 +23,8 @@ func InitializeSport(sport string) string {
 	switch sport {
 	case "BADMINTON":
 		return InitializeBadminton()
+	case "FOOTBALL":
+		return InitializeFootball()
 	}
 	return ""
 }

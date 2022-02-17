@@ -200,6 +200,202 @@ go run watcher.go
 You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectToDB``` function. And maybe update the database inside the docker image. And update [referee.go](client/referee.go) and [watcher.go](client/watcher.go) in the client folder.
 
 
+# Add a new sport (example : Football)
+
+1 - Create a new file with the name of sport (ex : football.go) in the server folder.
+
+2 - Create the structure for a match of this sport as a JSON representation. For example : 
+```JSON
+{
+    "EquipeA" : {
+        "Score": int,
+        "Fault": {
+            "NumberOfRedCard": int,
+            "NumberOfYellowCard": int
+        }
+    },
+    "EquipeB" : {
+        "Score": int,
+        "Fault": {
+            "NumberOfRedCard": int,
+            "NumberOfYellowCard": int
+        }
+    },
+    "status": string, //("NOT_BEGUN" "FIRST_HALF" "HALF" "SECOND_HALF" "EXTENSION" "PENALTY_SHOOTOUT" "END_MATCH")
+    "PenaltyShootout": {
+        "ScoreEquipeA":int,
+        "ScoreEquipeB":int
+    }
+}
+```
+
+3 - Implement this structure in go and add in the file football.go
+
+```go
+type EquipeFootball struct {
+	Score int           `json:"Score"`
+	Fault FaultFootball `json:"Fault"`
+}
+
+type FaultFootball struct {
+	NumberOfRedCard    int `json:"NumberOfRedCard"`
+	NumberOfYellowCard int `json:"NumberOfYellowCard"`
+}
+type Football struct {
+	EquipeA         EquipeFootball  `json:"EquipeA"`
+	EquipeB         EquipeFootball  `json:"EquipeB"`
+	Status          string          `json:"Status"` //("NOT_BEGUN" "FIRST_HALF" "HALF" "SECOND_HALF" "EXTENSION" "PENALTY_SHOOTOUT)
+	PenaltyShootout PenaltyShootout `json:"PenaltyShootout"`
+}
+
+type PenaltyShootout struct {
+	ScoreEquipeA int    `json:"ScoreEquipeA"`
+	ScoreEquipeB int    `json:"ScoreEquipeB"`
+}
+```
+4 - Create in the file football.go a function for intializing a struct Football and return it in JSON :
+``` go
+func InitializeFootball() string {
+	football := Football{
+		EquipeA: EquipeFootball{
+			Score: 0,
+			Fault: FaultFootball{
+				NumberOfRedCard:    0,
+				NumberOfYellowCard: 0,
+			},
+		},
+		EquipeB: EquipeFootball{
+			Score: 0,
+			Fault: FaultFootball{
+				NumberOfRedCard:    0,
+				NumberOfYellowCard: 0,
+			},
+		},
+		Status: "NOT_BEGUN",
+		PenaltyShootout: PenaltyShootout{
+			ScoreEquipeA: 0,
+			ScoreEquipeB: 0,
+		},
+	}
+	tmp, err := json.Marshal(football)
+	if err != nil {
+		fmt.Println("error initialize football struct: %v", err)
+	}
+	return string(tmp)
+}
+```
+
+5 - Create in the file football.go a function for managing the different events with a switch case :
+
+```go
+//Event struct :
+type Event_Football_Point struct {
+	Point int `json:"Point"`
+}
+type Event_Football_Fault struct {
+	FaultValue int    `json:"FaultValue"`
+}
+// function to treat each events for this sport
+func ParseEventFootball(event Event, match Match) []byte {
+	// badminton := Badminton{}
+	var football Football
+	json.Unmarshal([]byte(match.matchValues), &football)
+	switch event.EventType {
+	case "POINT":
+		point := Event_Football_Point{}
+		json.Unmarshal([]byte(event.EventValue), &point)
+		if event.Equipe == "EQUIPEA" {
+			football.EquipeA.Score += point.Point
+		} else {
+			football.EquipeB.Score += point.Point
+		}
+	case "REDCARD":
+		fault := Event_Football_Fault{}
+		json.Unmarshal([]byte(event.EventValue), &fault)
+		if event.Equipe == "EQUIPEA" {
+			// in case of cancel we use fault.FaultValue
+			football.EquipeA.Fault.NumberOfRedCard += fault.FaultValue
+		} else {
+			football.EquipeB.Fault.NumberOfRedCard += fault.FaultValue
+		}
+	case "YELLOWCARD":
+		fault := Event_Football_Fault{}
+		json.Unmarshal([]byte(event.EventValue), &fault)
+		if event.Equipe == "EQUIPEA" {
+			// in case of cancel we use fault.FaultValue
+			football.EquipeA.Fault.NumberOfYellowCard += fault.FaultValue
+		} else {
+			football.EquipeB.Fault.NumberOfYellowCard += fault.FaultValue
+		}
+	case "POINT_PENALTY_SHOOTOUT":
+		point := Event_Football_Point{}
+		json.Unmarshal([]byte(event.EventValue), &point)
+		if event.Equipe == "EQUIPEA" {
+			// in case of cancel we use fault.FaultValue
+			football.PenaltyShootout.ScoreEquipeA += point.Point
+		} else {
+			football.EquipeB.Fault.NumberOfYellowCard += point.Point
+		}
+	case "FIRST_HALF":
+		football.Status = "FIRST_HALF"
+	case "HALF":
+		football.Status = "HALF"
+	case "SECOND_HALF":
+		football.Status = "SECOND_HALF"
+	case "EXTENSION":
+		football.Status = "EXTENSION"
+	case "PENALTY_SHOOTOUT":
+		football.Status = "PENALTY_SHOOTOUT"
+	case "END_MATCH":
+		football.Status = "END_MATCH"
+
+	}
+	tmp, err := json.Marshal(football)
+	if err != nil {
+		fmt.Println("error when marshelling in football.go: %v", err)
+	}
+	match.matchValues = string(tmp)
+	err = UpdateMatch(db, match)
+	if err != nil {
+		fmt.Println("Error update match : %v", err)
+	}
+	return tmp
+}
+```
+6 - In the file sport.go in the function InitializeSport() add on the switch, a case for calling your function for initializing your sport
+
+```go
+func InitializeSport(sport string) string {
+	switch sport {
+	case "BADMINTON":
+		return InitializeBadminton()
+	case "FOOTBALL":
+		return InitializeFootball()
+	}
+	return ""
+}
+```
+7 - In the file sport.go in the function ParseEvent() add on the switch, a case for calling your function for managing the event of your sport
+
+```go
+func ParseEvent(event Event, sport string) []byte {
+	// retrieve the match to which this event is tied
+	match, err := getMatch(db, event.IdMatch)
+	if err != nil {
+		fmt.Errorf("Parse event error get match : %v", err)
+	}
+	// treat each sport accordingly
+	switch sport {
+	case "BADMINTON":
+		return ParseEventBadminton(event, match)
+	case "FOOTBALL":
+		return ParseEventFootball(event, match)
+	}
+	return nil
+}
+
+```
+
 # Deployment 
 
 We deployed a functionnal version of the back-end in heroku. You can do the same by following the readme in the *production* branch in this repository. 

@@ -75,7 +75,7 @@ func ParseEventFootball(event Event, match Match) []byte {
 		} else {
 			football.EquipeB.Fault.NumberOfYellowCard += point.Point
 		}
-	case "FIRST_HALF":
+	case "BEGIN_MATCH":
 		football.Status = "FIRST_HALF"
 	case "HALF":
 		football.Status = "HALF"

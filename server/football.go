@@ -48,7 +48,7 @@ func ParseEventFootball(event Event, match Match) []byte {
 		} else {
 			football.EquipeB.Score += point.Point
 		}
-	case "REDCARD":
+	case "RED_CARD":
 		fault := Event_Football_Fault{}
 		json.Unmarshal([]byte(event.EventValue), &fault)
 		if event.Equipe == "EQUIPEA" {
@@ -57,7 +57,7 @@ func ParseEventFootball(event Event, match Match) []byte {
 		} else {
 			football.EquipeB.Fault.NumberOfRedCard += fault.FaultValue
 		}
-	case "YELLOWCARD":
+	case "YELLOW_CARD":
 		fault := Event_Football_Fault{}
 		json.Unmarshal([]byte(event.EventValue), &fault)
 		if event.Equipe == "EQUIPEA" {

@@ -395,7 +395,12 @@ func ParseEvent(event Event, sport string) []byte {
 	}
 	return nil
 }
+```
 
+8 - Add on the database the sport 
+
+``` sql
+INSERT INTO sport VALUES ("FOOTBALL");
 ```
 
 # Deployment 

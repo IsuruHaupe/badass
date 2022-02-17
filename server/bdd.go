@@ -32,6 +32,23 @@ func CreateTournament(db *sql.DB, tr Tournament) error {
 	return nil
 }
 
+func GetTournament(db *sql.DB, idTournament string) (Tournament, error) {
+	rows, err := db.Query("SELECT * from  tournament  where id = ? ", idTournament)
+	if err != nil {
+		return Tournament{}, fmt.Errorf("error : %v", err)
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var tournament Tournament
+		if err := rows.Scan(&tournament.ID, &tournament.name, &tournament.sport); err != nil {
+			return Tournament{}, fmt.Errorf("error : %v", err)
+		}
+		return tournament, nil
+	}
+	return Tournament{}, fmt.Errorf("error : %v", err)
+}
+
 /*func GetAllEvent(db *sql.DB) ([]Event, error) {
 	// An albums slice to hold data from returned rows.
 	var events []Event

@@ -74,6 +74,32 @@ func initBadmintonTournament() string {
 	return string(body)
 }
 
+func initFootballTournament() string {
+	// init tournament
+	//u := url.URL{Scheme: "http", Host: *ip, Path: "/create-tournament"}
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-tournament"}
+	// add params to URL
+	params := url.Values{}
+	params.Add("tournamentName", "les bourres contre-attaques")
+	params.Add("sport", "FOOTBALL")
+	//params.Add("IdMatch", IdMatch)
+	u.RawQuery = params.Encode()
+
+	resp, err := http.Get(u.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(body)
+}
+
 // This function creates a match using the specified route
 // The request will return an unique match ID.
 func initBadmintonMatch(tournamentID string) string {
@@ -85,6 +111,35 @@ func initBadmintonMatch(tournamentID string) string {
 	params.Add("equipeA", "les bourres")
 	params.Add("equipeB", "dikatomik")
 	params.Add("tournamentID", tournamentID)
+	params.Add("sport", "BADMINTON")
+	//params.Add("IdMatch", IdMatch)
+	u.RawQuery = params.Encode()
+
+	resp, err := http.Get(u.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(body)
+}
+
+func initFootballMatch(tournamentID string) string {
+	// init match
+	//u := url.URL{Scheme: "http", Host: *ip, Path: "/create-match"}
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/create-match"}
+	// add teams to URL
+	params := url.Values{}
+	params.Add("equipeA", "les bourres")
+	params.Add("equipeB", "dikatomik")
+	params.Add("tournamentID", tournamentID)
+	params.Add("sport", "FOOTBALL")
 	//params.Add("IdMatch", IdMatch)
 	u.RawQuery = params.Encode()
 
@@ -115,7 +170,8 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 	// init tournament
-	tournamentID := initBadmintonTournament()
+	//tournamentID := initBadmintonTournament()
+	tournamentID := initFootballTournament()
 	fmt.Println("ID du tournoi : ", tournamentID)
 
 	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
@@ -126,7 +182,8 @@ func main() {
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
 		// init match using the tournament ID and save its ID
-		listOfMatch = append(listOfMatch, initBadmintonMatch(tournamentID))
+		//listOfMatch = append(listOfMatch, initBadmintonMatch(tournamentID))
+		listOfMatch = append(listOfMatch, initFootballMatch(tournamentID))
 		fmt.Println("ID du match : ", listOfMatch[i])
 		// add match ID to URL
 		params := url.Values{}
@@ -156,7 +213,7 @@ func main() {
 	//	Equipe    string `json:"Equipe"`
 	//	EventType string `json:"EventType"`
 	//	value     string `json:"Value"`
-	event := []Event{
+	/*event := []Event{
 		// START MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "BEGIN_MATCH", EventValue: ""},
 		// POINT
@@ -180,6 +237,39 @@ func main() {
 		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
 		// END SET
 		Event{IdMatch: "", Equipe: "", EventType: "END_SET", EventValue: ""},
+		// END MATCH
+		Event{IdMatch: "", Equipe: "", EventType: "END_MATCH", EventValue: ""},
+	}*/
+
+	event := []Event{
+		// START MATCH
+		Event{IdMatch: "", Equipe: "", EventType: "BEGIN_MATCH", EventValue: ""},
+		// POINT
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		// FAULT
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "YELLOW_CARD", EventValue: "{\"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "RED_CARD", EventValue: "{\"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "YELLOW_CARD", EventValue: "{\"FaultValue\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "RED_CARD", EventValue: "{\"FaultValue\":1}"},
+		// PAUSE
+		Event{IdMatch: "", Equipe: "", EventType: "HALF", EventValue: ""},
+		// START OF SECOND HALF
+		Event{IdMatch: "", Equipe: "", EventType: "SECOND_HALF", EventValue: ""},
+		// START OF EXTENSION
+		Event{IdMatch: "", Equipe: "", EventType: "EXTENSION", EventValue: ""},
+		// POINT
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEB", EventType: "POINT", EventValue: "{\"Point\":1}"},
+		// END SET
+		Event{IdMatch: "", Equipe: "", EventType: "PENALTY_SHOOTOUT", EventValue: ""},
+		// POINT
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT_PENALTY_SHOOTOUT", EventValue: "{\"Point\":1}"},
+		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT_PENALTY_SHOOTOUT", EventValue: "{\"Point\":1}"},
 		// END MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "END_MATCH", EventValue: ""},
 	}

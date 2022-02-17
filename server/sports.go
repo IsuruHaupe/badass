@@ -2,14 +2,15 @@ package main
 
 import "fmt"
 
-func ParseEvent(event Event, sport string) []byte {
+func ParseEvent(event Event) []byte {
 	// retrieve the match to which this event is tied
 	match, err := getMatch(db, event.IdMatch)
+	tournament, err := GetTournament(db, match.tournament)
 	if err != nil {
 		fmt.Errorf("Parse event error get match : %v", err)
 	}
 	// treat each sport accordingly
-	switch sport {
+	switch tournament.sport {
 	case "BADMINTON":
 		return ParseEventBadminton(event, match)
 	case "FOOTBALL":

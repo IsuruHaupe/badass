@@ -69,7 +69,7 @@ func EventController() {
 					// save the event in the database
 					// TODO: save data in a specific table or a specific ID
 					//AddEvent(db, decodedMsg)
-					match := ParseEvent(decodedMsg, "BADMINTON")
+					match := ParseEvent(decodedMsg)
 
 					// return the new state of the match to referee
 					// send new data

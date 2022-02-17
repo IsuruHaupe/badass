@@ -18,14 +18,14 @@ func InitMatch(w http.ResponseWriter, r *http.Request) {
 		tournamentID := r.URL.Query().Get("tournamentID")
 		// generate unique ID for this watcher
 		matchID := ksuid.New().String()
-
+		sport := r.URL.Query().Get("sport")
 		// TODO : change this for a general sports
 		match := Match{
 			id:          matchID,
 			equipeA:     equipeA,
 			equipeB:     equipeB,
 			tournament:  tournamentID,
-			matchValues: InitializeSport("BADMINTON"),
+			matchValues: InitializeSport(sport),
 		}
 		fmt.Println(match)
 		// create the match in database

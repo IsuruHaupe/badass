@@ -204,9 +204,9 @@ You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectTo
 
 # Add a new sport (example : Football)
 
-1 - Create a new file with the name of sport (ex : football.go) in the server folder.
+## 1 - Create a new file with the name of sport (ex : football.go) in the server folder.
 
-2 - Create the structure for a match of this sport as a JSON representation. For example : 
+## 2 - Create the structure for a match of this sport as a JSON representation. For example : 
 ```JSON
 {
     "EquipeA" : {
@@ -231,7 +231,7 @@ You will need to uncomment a line in [bdd.go](server/bdd.go) in the ```ConnectTo
 }
 ```
 
-3 - Implement this structure in go and add in the file football.go
+## 3 - Implement this structure in go and add in the file football.go
 
 ```go
 type EquipeFootball struct {
@@ -255,7 +255,7 @@ type PenaltyShootout struct {
 	ScoreEquipeB int    `json:"ScoreEquipeB"`
 }
 ```
-4 - Create in the file football.go a function for intializing a struct Football and return it in JSON :
+## 4 - Create in the file football.go a function for intializing a struct Football and return it in JSON :
 ``` go
 func InitializeFootball() string {
 	football := Football{
@@ -287,7 +287,7 @@ func InitializeFootball() string {
 }
 ```
 
-5 - Create in the file football.go a function for managing the different events with a switch case :
+## 5 - Create in the file football.go a function for managing the different events with a switch case :
 
 ```go
 //Event struct :
@@ -364,7 +364,7 @@ func ParseEventFootball(event Event, match Match) []byte {
 	return tmp
 }
 ```
-6 - In the file sport.go in the function InitializeSport() add on the switch, a case for calling your function for initializing your sport
+## 6 - In the file sport.go in the function InitializeSport() add on the switch, a case for calling your function for initializing your sport
 
 ```go
 func InitializeSport(sport string) string {
@@ -377,7 +377,7 @@ func InitializeSport(sport string) string {
 	return ""
 }
 ```
-7 - In the file sport.go in the function ParseEvent() add on the switch, a case for calling your function for managing the event of your sport
+## 7 - In the file sport.go in the function ParseEvent() add on the switch, a case for calling your function for managing the event of your sport
 
 ```go
 func ParseEvent(event Event, sport string) []byte {
@@ -397,7 +397,7 @@ func ParseEvent(event Event, sport string) []byte {
 }
 ```
 
-8 - Add on the database the sport 
+## 8 - Add on the database the sport 
 
 ``` sql
 INSERT INTO sport VALUES ("FOOTBALL");

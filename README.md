@@ -54,7 +54,9 @@ The idea when you want to interact with the system is that you need to follow a 
 
 * How does referee requests work ?
 
-Let's say  a referee need to referee a game. First he/she will create a match using the specified route. See [routes](#routes). With the returned unique ID for a match the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. See [events](#event) to check how events should look like. **The referee front-end send the unique ID in the URL query when creating the websocket**.  See [referee.go](client/referee.go) for more details. *Possible example : ws://127.0.0.1:8000/referee?**IdMatch=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
+Let's say  a referee need to referee a game. First he/she will create a match using the specified route. See [routes](#routes). With the returned unique ID for a match the referee initiate a websocket connection. The referee then use this connection to send live updates of the match. Every time an event is sent, the new state of the match is sent back to the referee as truth. Use that to update front-end part.
+
+See [events](#event) to check how events should look like. **The referee front-end send the unique ID in the URL query when creating the websocket**.  See [referee.go](client/referee.go) for more details. *Possible example : ws://127.0.0.1:8000/referee?**IdMatch=23PhWzEt2YdyRGM7iJHQ8uiCVwZ***.
 
 * How does watcher requests work ?
 
@@ -222,9 +224,6 @@ A ill intentioned user can easily hack a match that is being played by simply qu
 # TODO 
 
 * cache the id of the referee in order to reconnect to the existing pool of watchers (front side)
-* **Handle badminton events (set + end of match and winner / leaving / disqualification) + handle logic events**
-* check if events are returned to the referee for truth of data.
-* Add the referee as a spectator to check if events are being saved correctly (the server should be the only proof of events validity)
 * Implement secure authentification 
     * https://www.bacancytechnology.com/blog/golang-jwt
     * https://learn.vonage.com/blog/2020/03/13/using-jwt-for-authentication-in-a-golang-application-dr/

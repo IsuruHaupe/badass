@@ -17,15 +17,15 @@ import (
 )
 
 var (
-	ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
-	//ip          = flag.String("ip", "127.0.0.1", "server IP")
+	//ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
+	ip          = flag.String("ip", "127.0.0.1", "server IP")
 	connections = flag.Int("conn", 1, "number of websocket connections")
 )
 var matchs []string
 
 func main() {
-	//u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match"}
-	u := url.URL{Scheme: "http", Host: *ip, Path: "/get-live-match"}
+	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match"}
+	//u := url.URL{Scheme: "http", Host: *ip, Path: "/get-live-match"}
 	fmt.Println(u)
 	getLiveMatch(u.String())
 	fmt.Println(matchs)
@@ -61,8 +61,8 @@ func initWatcher(matchID string) {
 
 	rand.Seed(time.Now().Unix())
 	//WEBSOCKET
-	//u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/spectateur"}
-	u := url.URL{Scheme: "ws", Host: *ip, Path: "/spectateur"}
+	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/spectateur"}
+	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/spectateur"}
 	// add match ID to URL
 	params := url.Values{}
 	params.Add("matchID", matchID)

@@ -71,6 +71,21 @@ func EventController() {
 					//AddEvent(db, decodedMsg)
 					match := ParseEvent(decodedMsg, "BADMINTON")
 
+					// return the new state of the match to referee
+					// send new data
+					err = wsutil.WriteServerMessage(referee, websocket.TextMessage, match)
+					// handle when connection is dead
+					// delete the referee from the epoller
+					// and close connection
+					if err != nil {
+						// remove connection from epoller
+						_, err := refereeEpoller.Remove(referee)
+						if err != nil {
+							log.Printf("Failed to remove %v", err)
+						}
+						// close connection
+						referee.Close()
+					}
 					// retrieve referee ID that sent the update
 					IdMatch := decodedMsg.IdMatch
 					// retrieve pool of watchers for this match/referee ID

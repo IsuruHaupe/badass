@@ -21,11 +21,11 @@ func InitMatch(w http.ResponseWriter, r *http.Request) {
 		sport := r.URL.Query().Get("sport")
 		// TODO : change this for a general sports
 		match := Match{
-			id:          matchID,
-			equipeA:     equipeA,
-			equipeB:     equipeB,
-			tournament:  tournamentID,
-			matchValues: InitializeSport(sport),
+			Id:          matchID,
+			EquipeA:     equipeA,
+			EquipeB:     equipeB,
+			Tournament:  tournamentID,
+			MatchValues: InitializeSport(sport),
 		}
 		fmt.Println(match)
 		// create the match in database

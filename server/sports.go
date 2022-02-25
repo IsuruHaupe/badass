@@ -5,7 +5,7 @@ import "fmt"
 func ParseEvent(event Event) []byte {
 	// retrieve the match to which this event is tied
 	match, err := getMatch(db, event.IdMatch)
-	tournament, err := GetTournament(db, match.tournament)
+	tournament, err := GetTournament(db, match.Tournament)
 	if err != nil {
 		fmt.Errorf("Parse event error get match : %v", err)
 	}

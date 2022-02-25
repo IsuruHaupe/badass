@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -74,7 +75,7 @@ func GetTournament(db *sql.DB, idTournament string) (Tournament, error) {
 
 //Add a new match in db
 func CreateMatch(db *sql.DB, m Match) error {
-	_, err := db.Exec("INSERT INTO matchs (id, equipeA, equipeB, matchValues, idTournament) VALUES (?,?,?,?,?)", m.id, m.equipeA, m.equipeB, m.matchValues, m.tournament)
+	_, err := db.Exec("INSERT INTO matchs (id, equipeA, equipeB, matchValues, idTournament) VALUES (?,?,?,?,?)", m.Id, m.EquipeA, m.EquipeB, m.MatchValues, m.Tournament)
 	if err != nil {
 		return fmt.Errorf("Create matchs error: %v", err)
 	}
@@ -84,7 +85,7 @@ func CreateMatch(db *sql.DB, m Match) error {
 
 //Add a new match in db
 func UpdateMatch(db *sql.DB, m Match) error {
-	_, err := db.Exec("UPDATE matchs SET matchValues = (?) where id= (?)", m.matchValues, m.id)
+	_, err := db.Exec("UPDATE matchs SET matchValues = (?) where id= (?)", m.MatchValues, m.Id)
 	if err != nil {
 		return fmt.Errorf("update matchs: %v", err)
 	}
@@ -100,7 +101,7 @@ func getMatch(db *sql.DB, idMatch string) (Match, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var match Match
-		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.tournament, &match.matchValues); err != nil {
+		if err := rows.Scan(&match.Id, &match.EquipeA, &match.EquipeB, &match.Tournament, &match.MatchValues); err != nil {
 			return Match{}, fmt.Errorf("error : %v", err)
 		}
 		return match, nil
@@ -138,7 +139,7 @@ func getMatchForTournament(db *sql.DB, tournamentID string) ([]Match, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var match Match
-		if err := rows.Scan(&match.id, &match.equipeA, &match.equipeB, &match.matchValues); err != nil {
+		if err := rows.Scan(&match.Id, &match.EquipeA, &match.EquipeB, &match.Tournament, &match.MatchValues); err != nil {
 			return nil, fmt.Errorf("error : %v", err)
 		}
 		matchs = append(matchs, match)
@@ -165,7 +166,7 @@ func ConnectToDB() (db *sql.DB) {
 			log.Fatal(err)
 		}
 	} else {
-		/*cfg := mysql.Config{
+		cfg := mysql.Config{
 			User:   os.Getenv("DBUSER"),
 			Passwd: os.Getenv("DBPASS"),
 			Net:    "tcp",
@@ -175,12 +176,12 @@ func ConnectToDB() (db *sql.DB) {
 		db, err = sql.Open("mysql", cfg.FormatDSN())
 		if err != nil {
 			log.Fatal(err)
-		}*/
+		}
 		// for docker env
-		db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/history_of_message")
+		/*db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/history_of_message")
 		if err != nil {
 			log.Panic(err)
-		}
+		}*/
 	}
 	// MySQL server isn't fully active yet.
 	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start

@@ -16,7 +16,7 @@ func GetLiveMatchForTournament(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error when fetching match for tournament"))
 		fmt.Println(err)
 	}
-
+	fmt.Println("MATCH A ENVOYER : ", matchs)
 	body, err := json.Marshal(matchs)
 	if err != nil {
 		w.Write([]byte("Error when marshelling match for tournament"))

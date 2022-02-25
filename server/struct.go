@@ -36,11 +36,11 @@ type RefereeID struct {
 }
 
 type Match struct {
-	id          string
-	equipeA     string
-	equipeB     string
-	tournament  string
-	matchValues string
+	Id          string
+	EquipeA     string
+	EquipeB     string
+	Tournament  string
+	MatchValues string
 }
 
 // this map links the file descriptio (fd) in the epoller to the referee ID

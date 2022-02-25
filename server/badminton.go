@@ -33,7 +33,7 @@ type Fault struct {
 // function to treat each events for this sport
 func ParseEventBadminton(event Event, match Match) []byte {
 	var badminton Badminton
-	json.Unmarshal([]byte(match.matchValues), &badminton)
+	json.Unmarshal([]byte(match.MatchValues), &badminton)
 	switch event.EventType {
 	case "POINT":
 		point := Point{}
@@ -87,7 +87,7 @@ func ParseEventBadminton(event Event, match Match) []byte {
 	if err != nil {
 		fmt.Println("error when marshelling in badminton.go: %v", err)
 	}
-	match.matchValues = string(tmp)
+	match.MatchValues = string(tmp)
 	err = UpdateMatch(db, match)
 	if err != nil {
 		fmt.Println("Error update match : %v", err)

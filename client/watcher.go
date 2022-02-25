@@ -21,15 +21,54 @@ var (
 	ip          = flag.String("ip", "127.0.0.1", "server IP")
 	connections = flag.Int("conn", 1, "number of websocket connections")
 )
+
+type Match struct {
+	Id          string
+	EquipeA     string
+	EquipeB     string
+	Tournament  string
+	MatchValues string
+}
+
 var matchs []string
+var tournament []Match
 
 func main() {
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match"}
 	//u := url.URL{Scheme: "http", Host: *ip, Path: "/get-live-match"}
 	fmt.Println(u)
 	getLiveMatch(u.String())
-	fmt.Println(matchs)
+	u = url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match-for-tournament"}
+	fmt.Println(u)
+
+	params := url.Values{}
+	params.Add("tournamentID", "25b7cSZ1MRMdruj79kk3Qv9yfNz")
+	u.RawQuery = params.Encode()
+
+	getLiveTournament(u.String())
+	fmt.Println("TOUNRNAMENT", tournament)
+	//fmt.Println(matchs)
 	initWatcher(matchs[0])
+}
+
+func getLiveTournament(url string) {
+	resp, err := http.Get(url)
+	if err != nil {
+
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(body))
+	err = json.Unmarshal(body, &tournament)
+	if err != nil {
+		fmt.Println("error when marshelling in watcher.go : %v", err)
+	}
 }
 
 func getLiveMatch(url string) {

@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -25,7 +24,7 @@ func AddEvent(db *sql.DB, ev Event) (int64, error) {
 
 //Add a new tournment in db
 func CreateTournament(db *sql.DB, tr Tournament) error {
-	_, err := db.Exec("INSERT INTO tournament (id,nameTournament,sport) VALUES (?,?,?)", tr.ID, tr.name, tr.sport)
+	_, err := db.Exec("INSERT INTO tournament (id,nameTournament,sport) VALUES (?,?,?)", tr.ID, tr.Name, tr.Sport)
 	if err != nil {
 		return fmt.Errorf("Create Tournament: %v", err)
 	}
@@ -41,7 +40,7 @@ func GetTournament(db *sql.DB, idTournament string) (Tournament, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var tournament Tournament
-		if err := rows.Scan(&tournament.ID, &tournament.name, &tournament.sport); err != nil {
+		if err := rows.Scan(&tournament.ID, &tournament.Name, &tournament.Sport); err != nil {
 			return Tournament{}, fmt.Errorf("error : %v", err)
 		}
 		return tournament, nil
@@ -120,7 +119,7 @@ func getAllTournament(db *sql.DB) ([]Tournament, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var tournament Tournament
-		if err := rows.Scan(&tournament.ID, &tournament.name, &tournament.sport); err != nil {
+		if err := rows.Scan(&tournament.ID, &tournament.Name, &tournament.Sport); err != nil {
 			return nil, fmt.Errorf("error : %v", err)
 		}
 		tournaments = append(tournaments, tournament)
@@ -166,7 +165,7 @@ func ConnectToDB() (db *sql.DB) {
 			log.Fatal(err)
 		}
 	} else {
-		cfg := mysql.Config{
+		/*cfg := mysql.Config{
 			User:   os.Getenv("DBUSER"),
 			Passwd: os.Getenv("DBPASS"),
 			Net:    "tcp",
@@ -176,12 +175,12 @@ func ConnectToDB() (db *sql.DB) {
 		db, err = sql.Open("mysql", cfg.FormatDSN())
 		if err != nil {
 			log.Fatal(err)
-		}
+		}*/
 		// for docker env
-		/*db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/history_of_message")
+		db, err = sql.Open("mysql", "root:mypassword@tcp(db:3306)/history_of_message")
 		if err != nil {
 			log.Panic(err)
-		}*/
+		}
 	}
 	// MySQL server isn't fully active yet.
 	// Block until connection is accepted. This is a docker problem with v3 & container doesn't start

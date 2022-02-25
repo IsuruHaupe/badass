@@ -21,8 +21,8 @@ type Event struct {
 
 type Tournament struct {
 	ID    string
-	name  string
-	sport string
+	Name  string
+	Sport string
 }
 
 type Referee struct {

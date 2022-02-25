@@ -15,15 +15,15 @@ func GetLiveTournament(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error when fetching tournaments"))
 		fmt.Println("Error when fetching tournaments: %v", err)
 	}
-	keys := make([]string, len(tournaments))
+	//keys := make([]string, len(tournaments))
 
-	i := 0
+	/*i := 0
 	for _, tournament := range tournaments {
 		keys[i] = tournament.ID
 		i++
-	}
+	}*/
 
-	body, err := json.Marshal(keys)
+	body, err := json.Marshal(tournaments)
 	if err != nil {
 		w.Write([]byte("Error when marshelling tournament ID"))
 		fmt.Println("error when marshelling : %v", err)

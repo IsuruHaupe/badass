@@ -19,7 +19,7 @@ import (
 var (
 	//ip = flag.String("ip", "warm-dusk-64603.herokuapp.com", "server IP")
 	ip          = flag.String("ip", "127.0.0.1", "server IP")
-	connections = flag.Int("conn", 1, "number of websocket connections")
+	connections = flag.Int("conn", 5, "number of websocket connections")
 )
 
 type Event struct {

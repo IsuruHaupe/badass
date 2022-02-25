@@ -10,7 +10,7 @@ func ParseEvent(event Event) []byte {
 		fmt.Errorf("Parse event error get match : %v", err)
 	}
 	// treat each sport accordingly
-	switch tournament.sport {
+	switch tournament.Sport {
 	case "BADMINTON":
 		return ParseEventBadminton(event, match)
 	case "FOOTBALL":

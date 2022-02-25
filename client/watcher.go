@@ -30,25 +30,58 @@ type Match struct {
 	MatchValues string
 }
 
+type Tournament struct {
+	ID    string
+	Name  string
+	Sport string
+}
+
 var matchs []string
 var tournament []Match
+var tournaments []Tournament
 
 func main() {
 	u := url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match"}
 	//u := url.URL{Scheme: "http", Host: *ip, Path: "/get-live-match"}
 	fmt.Println(u)
 	getLiveMatch(u.String())
+
 	u = url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-match-for-tournament"}
 	fmt.Println(u)
 
 	params := url.Values{}
-	params.Add("tournamentID", "25b7cSZ1MRMdruj79kk3Qv9yfNz")
+	params.Add("tournamentID", "25b879seX7reJaK7Ts1G7LWHzGU")
 	u.RawQuery = params.Encode()
 
 	getLiveTournament(u.String())
 	fmt.Println("TOUNRNAMENT", tournament)
+
+	u = url.URL{Scheme: "http", Host: *ip + ":8000", Path: "/get-live-tournament"}
+	getAllLiveTournament(u.String())
+	fmt.Println("ALL TOURNAMENT", tournaments)
+
 	//fmt.Println(matchs)
 	initWatcher(matchs[0])
+}
+
+func getAllLiveTournament(url string) {
+	resp, err := http.Get(url)
+	if err != nil {
+
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(body))
+	err = json.Unmarshal(body, &tournaments)
+	if err != nil {
+		fmt.Println("error when marshelling in watcher.go : %v", err)
+	}
 }
 
 func getLiveTournament(url string) {

@@ -50,8 +50,8 @@ func InitTournament(w http.ResponseWriter, r *http.Request) {
 		// TODO : change this for a general sports
 		tournament := Tournament{
 			ID:    tournamentID,
-			name:  tournamentName,
-			sport: tournamentSport,
+			Name:  tournamentName,
+			Sport: tournamentSport,
 		}
 		// create the match in database
 		CreateTournament(db, tournament)

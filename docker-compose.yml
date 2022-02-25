@@ -10,10 +10,8 @@ services:
       dockerfile: db.Dockerfile
     restart: unless-stopped
     environment:
-      MYSQL_USER: user
       MYSQL_ROOT_PASSWORD: mypassword
-      MYSQL_PASSWORD: mypassword
-      MYSQL_DATABASE: testdb # create this database on startup
+      MYSQL_DATABASE: history_of_message # create this database on startup
     volumes:
       - my-db:/var/lib/mysql
   go:

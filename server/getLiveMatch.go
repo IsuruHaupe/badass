@@ -9,15 +9,14 @@ import (
 func GetLiveMatch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	keys := make([]string, len(referees))
 
-	i := 0
-	for k := range referees {
-		keys[i] = k
-		i++
+	matchs, err := getAllMatch(db)
+	if err != nil {
+		w.Write([]byte("Error when fetching match"))
+		fmt.Println(err)
 	}
 
-	body, err := json.Marshal(keys)
+	body, err := json.Marshal(matchs)
 	if err != nil {
 		w.Write([]byte("Error when marshelling live match"))
 		fmt.Println("Error when marshelling live match : %v", err)

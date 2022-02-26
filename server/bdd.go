@@ -109,6 +109,24 @@ func getMatch(db *sql.DB, idMatch string) (Match, error) {
 
 }
 
+func getAllMatch(db *sql.DB) ([]Match, error) {
+	var matchs []Match = make([]Match, 0)
+	rows, err := db.Query("SELECT * from  matchs")
+	if err != nil {
+		return nil, fmt.Errorf("error : %v", err)
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var match Match
+		if err := rows.Scan(&match.Id, &match.EquipeA, &match.EquipeB, &match.Tournament, &match.MatchValues); err != nil {
+			return nil, fmt.Errorf("error : %v", err)
+		}
+		matchs = append(matchs, match)
+	}
+	return matchs, nil
+}
+
 func getAllTournament(db *sql.DB) ([]Tournament, error) {
 	var tournaments []Tournament = make([]Tournament, 0)
 	rows, err := db.Query("SELECT * from  tournament")

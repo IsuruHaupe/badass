@@ -170,8 +170,8 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 	// init tournament
-	//tournamentID := initBadmintonTournament()
-	tournamentID := initFootballTournament()
+	tournamentID := initBadmintonTournament()
+	//tournamentID := initFootballTournament()
 	fmt.Println("ID du tournoi : ", tournamentID)
 
 	//u := url.URL{Scheme: "ws", Host: *ip, Path: "/referee"}
@@ -182,8 +182,8 @@ func main() {
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
 		// init match using the tournament ID and save its ID
-		//listOfMatch = append(listOfMatch, initBadmintonMatch(tournamentID))
-		listOfMatch = append(listOfMatch, initFootballMatch(tournamentID))
+		listOfMatch = append(listOfMatch, initBadmintonMatch(tournamentID))
+		//listOfMatch = append(listOfMatch, initFootballMatch(tournamentID))
 		fmt.Println("ID du match : ", listOfMatch[i])
 		// add match ID to URL
 		params := url.Values{}
@@ -213,7 +213,7 @@ func main() {
 	//	Equipe    string `json:"Equipe"`
 	//	EventType string `json:"EventType"`
 	//	value     string `json:"Value"`
-	/*event := []Event{
+	event := []Event{
 		// START MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "BEGIN_MATCH", EventValue: ""},
 		// POINT
@@ -239,9 +239,9 @@ func main() {
 		Event{IdMatch: "", Equipe: "", EventType: "END_SET", EventValue: ""},
 		// END MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "END_MATCH", EventValue: ""},
-	}*/
+	}
 
-	event := []Event{
+	/*event := []Event{
 		// START MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "BEGIN_MATCH", EventValue: ""},
 		// POINT
@@ -272,7 +272,7 @@ func main() {
 		Event{IdMatch: "", Equipe: "EQUIPEA", EventType: "POINT_PENALTY_SHOOTOUT", EventValue: "{\"Point\":1}"},
 		// END MATCH
 		Event{IdMatch: "", Equipe: "", EventType: "END_MATCH", EventValue: ""},
-	}
+	}*/
 
 	var matchID string
 	for {
